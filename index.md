@@ -1,37 +1,5 @@
-## Welcome to GitHub Pages
+#THANK YOU for your interest in Synaptans WorkforceSim™, version 0.1.081!
 
-You can use the [editor on GitHub](https://github.com/NeuraXenetica/synaptans-workforcesim/edit/gh-pages/index.md) to maintain and preview the content for your website in Markdown files.
+This software has been developed for educational and research-related purposes by NeuraXenetica LLC and is distributed free of charge. It creates a virtual population of simulated factory employees with diverse personal characteristics and abilities and then simulates their daily workplace behaviors and job performance through a specified number of days. Users are able to adjust the values of arguments including the number of persons employed in the factory; the number of days of activity to simulate; the minimum and maximum age of workers; and the mean value and standard deviation for employees’ characteristics such as their attendance rate, industriousness, eagerness and ability to learn, ability to teach others, degree of conscientiousness, ability to inspire and lead others, positivity of attitude, and degree of supportiveness displayed toward their fellow workers. Once such arguments have been specified, the software generates a quasi-randomized virtual workforce possessing such characteristics; simulates the activity of the virtual workforce during the desired period; and then presents the results through a series of visualizations. 
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
-
-### Markdown
-
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
-
-```markdown
-Syntax highlighted code block
-
-# Header 1
-## Header 2
-### Header 3
-
-- Bulleted
-- List
-
-1. Numbered
-2. List
-
-**Bold** and _Italic_ and `Code` text
-
-[Link](url) and ![Image](src)
-```
-
-For more details see [Basic writing and formatting syntax](https://docs.github.com/en/github/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax).
-
-### Jekyll Themes
-
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/NeuraXenetica/synaptans-workforcesim/settings/pages). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
-
-### Support or Contact
-
-Having trouble with Pages? Check out our [documentation](https://docs.github.com/categories/github-pages-basics/) or [contact support](https://support.github.com/contact) and we’ll help you sort it out.
+By building such a model of a simulated factory workforce, it becomes possible to manipulate variables, test hypotheses, and explore causal relationships in a way that isn’t feasible or desirable with real human beings in a real-world factory setting. For example, the software can facilitate investigation of the kinds of organizational elements, psychological factors, and interpersonal dynamics that have an influence on the motivation, satisfaction, and job performance of employees in a factory setting. A user can also examine the manner in which changes to a virtual workforce’s size and to the psychological characteristics of individual employees impact the structure and performance of larger organizational units such as production teams and entire shifts. The software also makes it possible, for example, to investigate the extent to which variations in the performance of different managers’ teams or shifts may result from random differences in their subordinates’ personal characteristics, rather than from differences in the managers’ own managerial abilities.
