@@ -74,9 +74,9 @@ def specify_directory_structure():
     cfg.current_working_dir = os.getcwd()
 
     cfg.input_files_dir = os.path.abspath(
-        os.path.join(cfg.current_working_dir, os.pardir, 'input_files\\'))
+        os.path.join(cfg.current_working_dir, 'input_files\\'))
 #    print("cfg.input_files_dir:", cfg.input_files_dir)
 
     cfg.output_files_dir = os.path.abspath(
-        os.path.join(cfg.current_working_dir, os.pardir, 'output_files\\'))
+        os.path.join(cfg.current_working_dir, 'output_files\\'))
 #    print("cfg.output_files_dir: ", cfg.output_files_dir)
