@@ -1,16 +1,24 @@
-███████████████████████████████████████████████
-SYNAPTANS WORKFORCESIM™: README.TXT
-███████████████████████████████████████████████
-
 ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
-OVERVIEW OF THE SOFTWARE
+Overview of the Software
 ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 
-THANK YOU for your interest in Synaptans WorkforceSim™, version 0.1.081!
+Synaptans WorkforceSim™ is an open-source platform for simulating the dynamics of a factory workforce and assessing various AI-based approaches to predictive analytics in the workplace. The program exists as a Python package that uses Tkinter to launch a GUI in which users can configure the simulation’s parameters, run the simulation, and view an array of charts and graphs that visualize the results. The software is made available for use under GNU General Public License Version 3 (please see https://www.gnu.org/licenses/gpl-3.0.html). 
 
-This software has been developed for educational and research-related purposes by NeuraXenetica LLC and is distributed free of charge. It creates a virtual population of simulated factory employees with diverse personal characteristics and abilities and then simulates their daily workplace behaviors and job performance through a specified number of days. Users are able to adjust the values of arguments including the number of persons employed in the factory; the number of days of activity to simulate; the minimum and maximum age of workers; and the mean value and standard deviation for employees’ characteristics such as their attendance rate, industriousness, eagerness and ability to learn, ability to teach others, degree of conscientiousness, ability to inspire and lead others, positivity of attitude, and degree of supportiveness displayed toward their fellow workers. Once such arguments have been specified, the software generates a quasi-randomized virtual workforce possessing such characteristics; simulates the activity of the virtual workforce during the desired period; and then presents the results through a series of visualizations. 
+The program creates a virtual population of simulated factory employees with diverse personal characteristics and abilities and then simulates their daily workplace behaviors and job performance through a specified number of days. Users are able to adjust the values of arguments including the number of persons employed in the factory; the number of days of activity to simulate; the minimum and maximum age of workers; and the mean value and standard deviation for employees’ characteristics such as their attendance rate, industriousness, eagerness and ability to learn, ability to teach others, degree of conscientiousness, ability to inspire and lead others, positivity of attitude, and degree of supportiveness displayed toward their fellow workers. Once such arguments have been specified, the software generates a quasi-randomized virtual workforce possessing such characteristics; simulates the activity of the virtual workforce during the desired period; and then presents the results through a series of visualizations.
 
 By building such a model of a simulated factory workforce, it becomes possible to manipulate variables, test hypotheses, and explore causal relationships in a way that isn’t feasible or desirable with real human beings in a real-world factory setting. For example, the software can facilitate investigation of the kinds of organizational elements, psychological factors, and interpersonal dynamics that have an influence on the motivation, satisfaction, and job performance of employees in a factory setting. A user can also examine the manner in which changes to a virtual workforce’s size and to the psychological characteristics of individual employees impact the structure and performance of larger organizational units such as production teams and entire shifts. The software also makes it possible, for example, to investigate the extent to which variations in the performance of different managers’ teams or shifts may result from random differences in their subordinates’ personal characteristics, rather than from differences in the managers’ own managerial abilities.
+
+The simulation is intended to operate at four levels:
+
+▶ LEVEL 1: “WORKERS’ BEHAVIORS.” Here the software simulates the concrete actions performed by frontline factory workers each day (e.g., by determining the actual degree of efficiency with with each worker operates a production machine on a given day and determining exactly when workers cause workplace accidents – or devise and implement business-process improvements – of a given type).
+
+▶ LEVEL 2: “MANAGERS’ RECORDS.” Here the software simulates the behavior of such workers’ immediate managers in noticing (or overlooking) and accurately (or inaccurately) recording workers’ actions in an HRM system, ERP system, or other enterprise system that seeks to document workers’ performance.
+
+▶ LEVEL 3: “AI-BASED ANALYSIS.” Here the software employs various forms of machine learning and AI to attempt to identify trends and causal connections, classify workers, and predict workers’ future behaviors on the basis of the information recorded by managers in the organization’s enterprise system at Level 2. Just as in a real workplace, AI doesn’t have direct access to the sum of workers’ actual behaviors; it can only access, analyze, and draw conclusions on the basis of the data that have actually been recorded in an organization’s information systems – and depending on the degree of competence, honesty, and dedication displayed by managers, such data may or may not accurately reflect the reality of workers’ actual behaviors.
+
+▶ LEVEL 4: “ASSESSEMENT OF THE AI-BASED ANALYSIS.” In a real-world organization, it’s incredibly difficult to gauge the accuracy of AI-generated analysis of workers’ behaviors, as data scientists and senior executives have no access to what’s actually happening at Level 1; they only have access to the relatively tiny quantity of worker behaviors that are captured (often fragmentarily and inaccurately) by information systems at Level 2. The great advantage of a workforce simulation like this one is that we actually know the reality of each worker’s personality, capacities, and daily behaviors – because we have directly specified all of a workers’ characteristics (including attitudes, strengths, and weaknesses that are normally invisible in a workplace setting) and algorithmically determined exactly what actions he or she performs each day. This makes it possible to compare AI-based analysis not only against the observations that managers recorded at Level 2 but against the actual behaviors performed by workers at Level 1. In this way, it becomes possible to evaluate which AI-based approaches can most accurately model workplace behaviors and what degree of confidence can be placed in various forms of predictive analytics.
+
+In the current version of the program, the code for Level 1 has been partially implemented and a development roadmap has been prepared for Levels 2-4.
 
 ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 STRUCTURE AND DYNAMICS 
@@ -109,13 +117,11 @@ The simulated factory is designed to model a real-world organization. In real-wo
 INSTALLING AND RUNNING THE SOFTWARE
 ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 
-This version of the software is distributed in the form of a single Windows executable file, “Synaptans_WorkforceSim_v_0.1.081.exe”. The software can be run by copying it onto the hard drive or other storage device of a Windows PC and double-clicking on the file name or icon. If the software is capable of running on the given computer, a console window should then open; depending on the capacities of one’s computer, this screen may remain blank (displaying only a blinking cursor) for some moments, while the program loads and initializes itself. A message should eventually appear stating that “Matplotlib is building the font cache; this may take a moment.”
+This version of the software is distributed as a Python package containing multiple modules. Assuming that all necessary Python libraries have been correctly installed and that other necessary setup steps have been performed, running the module named “launch_workforcesim_GUI.py” should launch a Tkinter-based GUI, while one’s Python console window should display a message stating “Welcome to Synaptans WorkforceSim™! This software is ©2021-22 NeuraXenetica LLC and made available for use under GNU General Public License Version 3. Please use the main interface window (which should open separately) to configure and run the simulation.” The main interface window opens with default dimensions of 1200×700 pixels; in Windows, its size can be adjusted (within certain limits) by manually clicking and dragging its edges or by clicking the icons near the upper right corner to “Maximize” or “Restore Down” the window.
 
-After some additional time, a second window (the main interface window) should open on one’s screen, and the original console window should display a message stating “Welcome to Synaptans WorkforceSim™! Please use the main interface window (which should open separately) to configure and run the simulation.” The main interface window opens with default dimensions of 1200×700 pixels; its size can be adjusted (within certain limits) by manually clicking and dragging its edges or by clicking the icons near the upper right corner to “Maximize” or “Restore Down” the window.
+One can terminate the main interface window by pressing “Escape” or (in Windows) clicking on the “X” in its upper right corner.
 
-One can terminate the main interface window by pressing “Escape” or clicking on the “X” in its upper right corner. If one closes the main interface window first, the console window will then need to be closed separately; if one closes the console window by pressing on the “X” in its upper right corner, the console window and main interface window should both be terminated.
-
-The program is not guaranteed to run successfully on all devices or with all versions of Windows. The software is distributed “as is” and with no warranties of any kind, whether express or implied; you assume all risk of using the software. (Please see the accompanying “End-User License Agreement.txt” file for more details.)
+The program is not guaranteed to run successfully on all devices. The software is distributed “as is” and with no warranties of any kind, whether express or implied; users assume all risk of using the software. (Please see the accompanying “Synaptans WorkforceSim license - GNU GPL V3.txt” file for more details.)
 
 ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 THE OPERATIONS SCREEN
@@ -193,11 +199,6 @@ Once the program has calculated each person’s activities for all days of the p
 DEVELOPMENT
 ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 
-Synaptans WorkforceSim™  is developed and published by NeuraXenetica LLC, using some components licensed from Cognitive Firewall LLC. (The choice of the name “Synaptans” acknowledges the origins of some of the simulation’s underlying code in code written for a computer game in the “Utopian Confederation” game series, inspired by the seminal 16th-century philosophical text of St. Thomas More. In that game, “synaptans” is one of many ranks found within the administrative hierarchy of the Utopian Confederation, as it exists in the 22nd century.)
+Synaptans WorkforceSim™ is developed with support from Cognitive Firewall LLC and NeuraXenetica LLC by Matthew E. Gladden. The choice of the name “Synaptans” acknowledges the origins of some of the simulation’s underlying code in code written for a computer game in the “Utopian Confederation” game series, inspired by the seminal 16th-century philosophical text of St. Thomas More. In that game, “synaptans” is one of many ranks found within the administrative hierarchy of the Utopian Confederation, as it exists in the 22nd century.
 
-The lead developer for this project is Matthew Gladden.
-
-███████████████████████████████████████████████
-Synaptans WorkforceSim™ software and
-accompanying documents ©2021 NeuraXenetica LLC
-███████████████████████████████████████████████
+©2021-2022 NeuraXenetica LLC
