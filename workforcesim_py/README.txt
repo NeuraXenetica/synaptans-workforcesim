@@ -1,33 +1,58 @@
-░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
-Overview of the Software
-░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
+███████████████████████████████████████████████████████
+OVERVIEW OF THE PACKAGE
+███████████████████████████████████████████████████████
 
-Synaptans WorkforceSim™ is an open-source platform for simulating the dynamics of a factory workforce and assessing various AI-based approaches to predictive analytics in the workplace. The program exists as a Python package that uses Tkinter to launch a GUI in which users can configure the simulation’s parameters, run the simulation, and view an array of charts and graphs that visualize the results. The software is made available for use under GNU General Public License Version 3 (please see https://www.gnu.org/licenses/gpl-3.0.html). 
+Synaptans WorkforceSim is a free open-source platform for simulating the dynamics of a factory workforce and assessing various AI-based approaches to predictive analytics in the workplace. The program exists as a Python package that allows users to configure the simulation’s parameters, run the simulation, and view an array of charts and graphs that visualize the results.
 
-The program creates a virtual population of simulated factory employees with diverse personal characteristics and abilities and then simulates their daily workplace behaviors and job performance through a specified number of days. Users are able to adjust the values of arguments including the number of persons employed in the factory; the number of days of activity to simulate; the minimum and maximum age of workers; and the mean value and standard deviation for employees’ characteristics such as their attendance rate, industriousness, eagerness and ability to learn, ability to teach others, degree of conscientiousness, ability to inspire and lead others, positivity of attitude, and degree of supportiveness displayed toward their fellow workers. Once such arguments have been specified, the software generates a quasi-randomized virtual workforce possessing such characteristics; simulates the activity of the virtual workforce during the desired period; and then presents the results through a series of visualizations.
+The software is developed by Matthew E. Gladden – with support from Cognitive Firewall LLC and NeuraXenetica LLC – and is made available for use under GNU General Public License Version 3 (please see https://www.gnu.org/licenses/gpl-3.0.html).
 
-By building such a model of a simulated factory workforce, it becomes possible to manipulate variables, test hypotheses, and explore causal relationships in a way that isn’t feasible or desirable with real human beings in a real-world factory setting. For example, the software can facilitate investigation of the kinds of organizational elements, psychological factors, and interpersonal dynamics that have an influence on the motivation, satisfaction, and job performance of employees in a factory setting. A user can also examine the manner in which changes to a virtual workforce’s size and to the psychological characteristics of individual employees impact the structure and performance of larger organizational units such as production teams and entire shifts. The software also makes it possible, for example, to investigate the extent to which variations in the performance of different managers’ teams or shifts may result from random differences in their subordinates’ personal characteristics, rather than from differences in the managers’ own managerial abilities.
+The simulation’s logic is intended to operate at four levels:
 
-The simulation is intended to operate at four levels:
+▶ LEVEL 0: “WORKFORCE CONSTRUCTION.” Here the software constructs a simulated workforce of a desired size, whose members possess a randomly-distributed array of demographic characteristics and abilities that will influence their daily behavior and performance in the workplace.
 
-▶ LEVEL 1: “WORKERS’ BEHAVIORS.” Here the software simulates the concrete actions performed by frontline factory workers each day (e.g., by determining the actual degree of efficiency with with each worker operates a production machine on a given day and determining exactly when workers cause workplace accidents – or devise and implement business-process improvements – of a given type).
+▶ LEVEL 1: “WORKERS’ BEHAVIORS.” Here the software simulates the concrete actions performed by frontline factory workers each day (e.g., by determining the actual degree of Efficacy with which each worker operates a production machine on a given day and determining exactly when workers cause workplace accidents or devise and implement business-process improvements).
 
-▶ LEVEL 2: “MANAGERS’ RECORDS.” Here the software simulates the behavior of such workers’ immediate managers in noticing (or overlooking) and accurately (or inaccurately) recording workers’ actions in an HRM system, ERP system, or other enterprise system that seeks to document workers’ performance.
+▶ LEVEL 2: “MANAGERS’ RECORDS.” Here the software simulates the behavior of such workers’ immediate managers in noticing (or overlooking) and accurately (or inaccurately) recording workers’ actions in an HRM/ERP system that seeks to document workers’ performance.
 
-▶ LEVEL 3: “AI-BASED ANALYSIS.” Here the software employs various forms of machine learning and AI to attempt to identify trends and causal connections, classify workers, and predict workers’ future behaviors on the basis of the information recorded by managers in the organization’s enterprise system at Level 2. Just as in a real workplace, AI doesn’t have direct access to the sum of workers’ actual behaviors; it can only access, analyze, and draw conclusions on the basis of the data that have actually been recorded in an organization’s information systems – and depending on the degree of competence, honesty, and dedication displayed by managers, such data may or may not accurately reflect the reality of workers’ actual behaviors.
+▶ LEVEL 3: “AI-BASED ANALYSIS.” Here the software employs various forms of machine learning and AI to attempt to identify trends and causal connections, classify workers, and predict workers’ future behaviors on the basis of the information recorded by managers in the organization’s enterprise system at Level 2. Just as in a real workplace, the AI doesn’t have direct access to the sum of workers’ actual behaviors; it can only access, analyze, and draw conclusions on the basis of the data that have actually been recorded in an organization’s HRM/ERP systems – and depending on the degree of attentiveness, thoroughness, and fairness displayed by managers, such data may or may not accurately reflect the reality of workers’ actual behaviors.
 
-▶ LEVEL 4: “ASSESSEMENT OF THE AI-BASED ANALYSIS.” In a real-world organization, it’s incredibly difficult to gauge the accuracy of AI-generated analysis of workers’ behaviors, as data scientists and senior executives have no access to what’s actually happening at Level 1; they only have access to the relatively tiny quantity of worker behaviors that are captured (often fragmentarily and inaccurately) by information systems at Level 2. The great advantage of a workforce simulation like this one is that we actually know the reality of each worker’s personality, capacities, and daily behaviors – because we have directly specified all of a workers’ characteristics (including attitudes, strengths, and weaknesses that are normally invisible in a workplace setting) and algorithmically determined exactly what actions he or she performs each day. This makes it possible to compare AI-based analysis not only against the observations that managers recorded at Level 2 but against the actual behaviors performed by workers at Level 1. In this way, it becomes possible to evaluate which AI-based approaches can most accurately model workplace behaviors and what degree of confidence can be placed in various forms of predictive analytics.
+▶ LEVEL 4: “ASSESSEMENT OF THE AI-BASED ANALYSIS.” In a real-world organization, it’s incredibly difficult to gauge the accuracy of AI-generated analysis of workers’ behaviors, as data scientists and senior executives have no access to what’s actually happening at Level 1; they only have access to the relatively tiny quantity of worker behaviors that are captured (often inaccurately) by information systems at Level 2. The utility of a workforce simulation like this one lies in the fact that we actually know the reality of each worker’s personality, capacities, and daily behaviors – because a user has specified (and is able to view) all workers’ characteristics (including attitudes, strengths, and weaknesses that are normally invisible in a workplace setting) and has algorithmically determined exactly what actions he or she performs each day. This makes it possible to compare AI-based analysis not only against the observations that managers recorded at Level 2 but against the actual behaviors performed by workers at Level 1 and the true capacities possessed by workers at Level 0. In this way, it becomes possible to evaluate which AI-based approaches can most accurately model workplace behaviors identify an organization’s best workers – and what degree of confidence can be placed in various forms of predictive analytics.
 
-In the current version of the program, the code for Level 1 has been partially implemented and a development roadmap has been prepared for Levels 2-4.
+In the current version of the program, the code for Levels 0, 1, and 2 has been partially implemented and a development roadmap has been prepared for Levels 3-4.
 
-░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
-STRUCTURE AND DYNAMICS 
-OF THE SIMULATED WORKFORCE 
-░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
+███████████████████████████████████████████████████████
+CONSTITUENT MODULES
+███████████████████████████████████████████████████████
 
------------------------------------------------
+In addition to __init__.py, this Python package includes the following modules:
+
+▶ config.py (imported as cfg) | This module stores configuration settings and variables that are used by multiple modules.
+
+▶ io_file_manager.py (imported as iofm) | This module handles the reading of files from disk (e.g., XLSX files or PNG images); the writing of files to disk (e.g., saving DataFrames as XLSX files or Matplotlib plots as PNG images; and the saving of complex objects as file-like objects assigned to variables in memory (e.g., Matplotlib plots as in-memory PNGs for display in a GUI).
+
+▶ wfs_utilities.py (imported as utils) | This module includes general initialization functions that don’t relate to just a single level of the simulation’s logic, along with other general time-saving utility functions.
+
+▶ wfs_personnel.py (imported as pers) | This module handles the simulation’s “Level 0” logic, which involves the creation of the members of the workforce and determining and determining of their (more or less) permanent personal characteristics.
+
+▶ wfs_behaviors.py (imported as bhv) | This module handles the simulation’s “Level 1” logic, which simulates the *actual* behaviors performed by workers during each day of the simulated time period. These behaviors reflect the “reality” of the daily productivity and interpersonal interactions of production workers in the factory.
+
+▶ wfs_records.py (imported as rec) | This module handles the simulation’s “Level 2” logic, which simulates frontline managers’ personal *observations* of workers’ daily behaviors and the *records* of such behaviors that they enter into their factory’s (simulated) HRM/ERP system. Of critical importance is the fact that those records *may* or *may not* accurately reflect workers’ actual behaviors: a manager who is overworked, inattentive, dishonest, or unskilled in use of the HRM/ERP system may fail to record some worker behaviors, may record behaviors that didn’t actually occur, or may record behaviors in a distorted manner.
+
+▶ wfs_ai (imported as ai) | This module handles the simulation’s “Level 3” logic, which uses various machine-learning techniques in an attempt to identify meaningful trends, causal relationships, and other correlations relating to workers’ personal characters and workplace behaviors and to attempt to predict workers’ future behavior – either absolutely or in response to particular changes that might be implemented in the workplace. In generating such analyses and predictions, the AI *does not* have access to workers’ actual personal characteristics or behaviors; rather, it only has access to the records made in the organization’s HRM/ERP system by its frontline managers – which may or may not reflect workers’ actual characteristics and behaviors in a fully accurate manner.
+
+▶ wfs_evaluator (imported as eval) | This module handles the simulation’s “Level 4” logic, which evaluates the accuracy and business value of the analyses and predictions made by various machine-learning techniques at Level 3 by comparing them to workers’ *actual* characteristics and behaviors (generated at Levels 0 and 1). This makes it possible to assess, for example, (1) what types of information regarding workers’ behaviors must be recorded, with what frequency, and for how large a workforce in order for the data present in the HRM/ERP system to allow machine learning algorithms to accurately predict future worker behaviors; (2) how much variation (e.g., in perceptiveness, objectivity, and completeness) can exist between individual managers’ approches to recording workers’ behaviors without undermining AI’s ability to detect certain trends and correlations or compromising the AI’s ability to accurately distinguish between the organization’s “more effective” and “less effective” workers; and (3) which forms of machine learning and AI are able to best predict workers’ future behaviors despite the “noise” produced by certain managers’ fragmentary, biased, or otherwise inaccurate manner of recording workers’ past behaviors in the HRM/ERP system.
+
+▶ wfs_visualizer.py (imported as vis) | This module handles visualization of the simulation’s results. It is capable of generating a wide range of histograms, bar plots, scatterplots, and other plots illustrating temporal trends and the relationships between particular variables.
+
+▶ wfs_executor.py | This simple module runs the simulation, accepting the arguments provided by a user to (1) create a simulated workforce; (2) simulate workers’ daily activity for a specified number of days and quantity of workers; (3) generate the (potentially inaccurate) records of such workplace behaviors made by workers’ frontline managers; (4) employ AI in an attempt to discover trends and correlations in the records’ data and generate predictions; and then (5) assess the accuracy of those analyses and predictions by comparing them with what we know to be the case regarding workers’ actual past and expected future behaviors.
+
+███████████████████████████████████████████████████████
+STRUCTURE AND DYNAMICS OF THE SIMULATED WORKFORCE
+███████████████████████████████████████████████████████
+
+●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●
 ORGANIZATIONAL ROLES
------------------------------------------------
+●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●
 
 The simulated workforce comprises a group of employees organized into four hierarchical levels, as described below:
 
@@ -39,71 +64,59 @@ The simulated workforce comprises a group of employees organized into four hiera
 
 ▶ Laborers. The factory has a variable number of specialized Laborers, with the exact number depending on input provided by a user. Each Laborer reports directly to the relevant Team Leader, does not supervise any other persons, and has a variable number of fellow team-member Laborers as peers (depending on the size of the workforce specified by the user).
 
------------------------------------------------
-ASSIGNING RANDOMIZED PERSONAL CHARACTERISTICS 
------------------------------------------------
+●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●
+ASSIGNING RANDOMIZED PERSONAL CHARACTERISTICS
+●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●
 
 Each person in the simulated workforce possesses a number of characteristics that are generated by the simulator in a manner that is quasi-randomized, as guided by certain parameters established by the software’s user. (The way in which such characteristics are generated and their relationship to user-supplied arguments is explained in more detail later in this document.) We can divide such personal characteristics into “demographic traits” and “core stats,” as discussed below.
 
 DEMOGRAPHIC TRAITS
 
+▶ “ID” is a person’s organizational employee ID number. Each member of the workforce has a unique ID.
+
+▶ A person’s “FIRST NAME” and “LAST NAME” are randomly selected from a list of possible names. It is possible for multiple persons in the factory to have the same full name (although their ID numbers will be unique).
+
 ▶ “AGE” is a person’s age in years at the start of the simulated time period; it is randomly generated to fall between the minimum and maximum ages specified by the user.
 
 ▶ “SEX” is a person’s sex; in this version of the software, a person is randomly assigned either “M” or “F” as a sex.
 
-CORE STATS 
+CORE STATS
 
-A person’s core stats are numbers that reflect the degree to which the individual possesses or manifests particular abilities or behaviors. The value of each core stat is independently generated for each person in the simulated workforce. The values of these stats are randomly generated to fall between 0.0 and 1.0, using a mean value and standard deviation specified by the user. In general, core stats are constructed in such a way that a high value is “better” than a low value. (E.g., there is a stat for one’s rate of attendance, rather than one’s rate of absence.)
+A person’s core stats are numbers that reflect the degree to which the individual possesses or manifests particular abilities or behaviors. The value of each core stat is independently generated for each person in the simulated workforce. The values of these stats are randomly generated to fall between -1.0 and +1.0, using a mean value and standard deviation specified by the user. In general, core stats are constructed in such a way that a high value is “better” than a low value. (E.g., there is a stat for one’s rate of attendance, rather than one’s rate of absence.)
 
-▶ “ATD” reflects a person’s daily base rate of attendance on those days when he or she is scheduled to work. It is, in many ways, an employee’s most fundamental core stat: if an employee isn’t able to successfully reach the workplace, then his or her other stats will not be particularly relevant. There is a wide range of imaginable reasons why a particular employee might have a low ATD stat; for example, he or she might suffer from a chronic illness, might need to care for a family member who has a chronic illness, might live at a great distance from the factory and have a lack of reliable transportation, or might be irresponsible or disengaged from his or her job.
+▶ “HEALTH” represents a person’s overall degree of physical hardiness, which influences his or her rate of attendance at work. In terms of the simulation, a Laborer with a low Health stat will generate more Absence behaviors (i.e., will be more frequently absent from the workplace).
 
-▶ “DEX” reflects a person’s base rate of physical dexterity, which is important for a factory’s frontline employees who manipulate complex machinery, perform fine motor tasks, manually transport items, or operate in moving or unsteady environments as part of their work.
+▶ “COMMITMENT” reflects a person’s overall level of dedication to his or her job in the factory and the degree of thoroughness and effort that the person manifests in his or her daily work. In terms of the simulation, a Laborer with high Commitment will generate fewer Absence behaviors, more Sacrifice behaviors, fewer Sabotage behaviors, and a higher average daily Efficacy. 
 
-▶ “IND” reflects an employee’s industriousness – i.e., how hard he or she works during the times when the individual is present for work. An employee with a high IND stat will, on average, produce more per shift than one with a low IND stat. Note that it is possible for a person to have a very high rate of productivity but rarely be present for work, or vice versa.
+▶ “PERCEPTIVENESS” reflects a person’s natural ability to notice details in the workplace, detect trends, draw connections, and identify possible solutions to problems. In terms of the simulation, a Laborer with high Perceptiveness will generate more Idea behaviors and fewer Lapse behaviors.
 
-▶ “INS” captures a person’s ability to inspire and lead others. Having a high INS stat is not critical for frontline Laborers, but it is important for the successful managerial performance of Team Leaders, Shift Managers, and the Production Director.
+▶ “DEXTERITY” reflects a person’s natural ability to quickly and accurately perform manual tasks and to avoid physical errors or accidents. In terms of the simulation, a Laborer with high Dexterity will generate more Feat behaviors, fewer Slip behaviors, and a higher daily Efficacy.
 
-▶ “INT” reflects a person’s overall level of intelligence, which can be understood here as the general ability to gather meaningful data and recognize its significance; identify relevant trends and causal connections; anticipate the outcomes of future actions; and solve problems.
+▶ “SOCIALITY” reflects a person’s ability to successfully collaborate with, support, inspire, and mentor his or her coworkers. In terms of the simulation, a Laborer with high Sociality will generate more Teamwork behaviors and fewer Disruption behaviors
 
-▶ “LRN” reflects a person’s degree of eagerness and ability to learn (e.g., learning how to operate a new type of machine or perform a new kind of complex task).
+▶ “GOODNESS” reflects a person’s overall level of integrity and virtue, including the ability to deal constructively with adversity or disappointments in the workplace. In terms of the simulation, a Laborer with high Goodness will generate more Sacrifice behaviors and fewer Sabotage behaviors.
 
-▶ “ORD” reflects a person’s degree of inherent orderliness and self-organization.
+RELATIONSHIP OF CORE STATS TO DAILY BEHAVIORS
 
-▶ “POL” reflects a person’s degree of political sensitivity and diplomacy; a high POL stat enables an individual to more effectively navigate the complex social environment that is the workplace.
+As indicated above, various relationships exist between a Laborer’s personal characteristics and the behaviors that he or she performs daily in the workplace. For example, in general, a person with a high Dexterity and Commitment will demonstrate a higher average daily Efficacy than one with low Dexterity and Commitment. However, due to the randomizing elements introduced into the simulation, it is quite possible that on any given day, a person with low Dexterity and Commitment will generate a greater Efficacy behavior for that day than one with high Dexterity and Commitment.
 
-▶ “POS” reflects the degree of positivity, optimism, and cheerfulness shown by a person in his or her general attitude, interactions with others, and encounters with difficult workplace problems.
-
-▶ “RCN” reflects a person’s degree of patience, empathy, and ability to reduce tensions and bring about reconciliation between persons. Someone with a high RCN stat is able to handle the inevitable stresses and vicissitudes of a factory workplace over the long-term, without bearing destructive grudges or seeking to sabotage or exact “vengeance” on others.
-
-▶ “RSP” reflects a person’s degree of conscientiousness and sense of responsibility. If persons with a high RSP stat notice (for example) recurring product defects, equipment faults, or inefficiencies in processes, they will not simply ignore them; they will proactively bring the problems to the attention of their supervisors or attempt to solve them themselves. They also devote an equally high degree of attention and energy to their work at all times, regardless of whether or not their supervisor is closely monitoring their activities in a given moment.
-
-▶ “SPD” reflects the characteristic speed and efficiency with which a person carries out his or her assigned tasks.
-
-▶ “SPT” reflects the degree to which a person naturally supports, encourages, and assists others in the workplace. It is important for frontline employees who regularly operate in teams and who must collaborate in performing production tasks.
-
-▶ “TCH” reflects a person’s desire and ability to teach others in the workplace. It is manifested, for example, in a veteran Laborer’s willingness to informally mentor and train newly hired Laborers.
-
-RELATIONSHIP OF CORE STATS TO DAILY ACTIVITIES
-
-A complex relationship exists between a person’s personal characteristics and the behaviors that he or she performs daily in the workplace. For example, in general, a person with a higher ATD stat number will show up for work more often than one with a low ATD stat number; however, it is not necessarily the case that someone with an ATD score of (for example) 0.85 will, over the long run, show up for work roughly 85% of the time – as the ultimate probability can be modified by other factors (including the “level of difficulty” assigned to the task of showing up for work).
-
------------------------------------------------
+●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●
 COMPOSITE CAPACITY SCORES
------------------------------------------------
+●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●
 
 In addition to randomly generating the values of the “raw” core stats possessed by each person in the workforce, the simulator also calculates the values of certain composite capacity scores that present a more generalized, synthetic overview of some aspect of an employee’s potential.
 
-▶ A person’s “worker capacity score” (WRKR_CAP) is a calculated score that attempts to capture his or her general long-term ability to successfully carry out routine frontline production work within the factory (e.g., operating some machine on an assembly line or transporting materials within the factory). It is a weighted average of multiple core stats (including ATD, IND, LRN, and RSP), with more weight being given to a person’s ATD stat. (This reflects the fact that attendance is the most basic prerequisite for being able to carry out work: as noted above, if someone is not able to present in the workplace, then none of his or her other strengths or weaknesses will be relevant.) 
+▶ A person’s “worker capacity score” (WRKR_CAP) is a calculated score that attempts to capture his or her general long-term ability to successfully carry out routine frontline production work within the factory (e.g., operating some machine on an assembly line or transporting materials within the factory). It is a weighted average of a person’s Health, Commitment, Dexterity, Goodness, Perceptiveness, and Sociality stats, with more weight being given to a person’s Health and Commitment stats, which jointly influence a person’s rate of attendance in the workplace. (This reflects the fact that attendance is the most basic prerequisite for being able to carry out work: as noted above, if someone is not able to present in the workplace, then none of his or her other strengths or weaknesses will be relevant.) 
 
-▶ A person’s “managerial capacity score” (MNGR_CAP) is a calculated score designed to reflect his or her general long-term ability to fill a managerial role (e.g., as Team Leader, Shift Manager, or Production Director) within the factory. It is a weighted average of multiple core stats (including ATD, INS, ORD, POL, POS, and RSP), with more weight being given to a person’s ATD stat.
+▶ A person’s “managerial capacity score” (MNGR_CAP) is a calculated score designed to reflect his or her general long-term ability to fill a managerial role (e.g., as Team Leader, Shift Manager, or Production Director) within the factory. It is a weighted average of a person’s Health, Commitment, Perceptiveness, and Goodness, stats, with more weight being given to a person’s Health and Commitment stats.
 
 RELATIONSHIP OF WRKR_CAP AND MNGR_CAP SCORES
 
-While, for example, manual dexterity is fairly important for a frontline factory worker and leadership skills are not as essential, the opposite is true for a manager. Such distinctions are reflected in the manner in which the WRKR_CAP and MNGR_CAP scores are calculated: there is some overlap in constituent factors (e.g., ATD contributes significantly to both scores), but other factors contribute to only one of the two scores. It is thus possible for a worker to have a relatively high WRKR_CAP score but a low MNGR_CAP score, or vice versa. This reflects the real-world fact that the skills needed to successfully perform frontline work in a given organization may differ significantly from the skills needed to successfully oversee *other* persons who are performing such work. Someone who is an excellent frontline worker may or may not thrive when promoted into a managerial position, while someone who struggles in a frontline position might excel when asked to supervise others who are performing such work.
+While, for example, manual dexterity is fairly important for a frontline factory worker, it isn’t so essential for a manager. Such distinctions are reflected in the manner in which the WRKR_CAP and MNGR_CAP scores are calculated: there is some overlap in constituent factors, but other stats contribute to only one of the two scores. It is thus possible for a person to have higher WRKR_CAP score than MNGR_CAP score, or vice versa. This reflects the real-world fact that the skills needed to successfully perform frontline work in a given organization may differ significantly from the skills needed to successfully oversee *other* persons who are performing such work. Someone who is an excellent frontline worker may or may not thrive when promoted into a managerial position, while someone who struggles in a frontline position might excel when asked to supervise others who are performing such work.
 
------------------------------------------------
+●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●
 ASSIGNING ROLES WITHIN THE ORGANIZATION
------------------------------------------------
+●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●
 
 The simulated factory is designed to model a real-world organization. In real-world competitive contexts, running a factory with hundreds or thousands of workers is an incredibly complex undertaking, and (in the absence of nepotism, corruption, incompetence, or neglect on the part of an organization’s board or directors), one may generally presume that the persons who have been assigned to senior management roles have been selected to bear such responsibility because they are well-trained, highly qualified, and have proven (and honed) their managerial abilities through years of experience. The software models this dynamic in the following manner:
 
@@ -113,92 +126,26 @@ The simulated factory is designed to model a real-world organization. In real-wo
 
 ▶ All of the remaining individuals within the organization are randomly assigned to the role of either Team Leader or Laborer – without regard to their particular MNGR_CAP or WRKR_CAP scores. This reflects the fact that when new employees join a production company in an entry-level position, it is often not immediately apparent which individuals possess exactly which strengths and weaknesses, and which of them would thrive (or struggle) if they were promoted to the position of Team Leader. The persons assigned to serve as Team Leaders thus may or may not actually be the persons who are theoretically best-qualified to fill such roles.
 
-░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
-INSTALLING AND RUNNING THE SOFTWARE
-░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
-
-This version of the software is distributed as a Python package containing multiple modules. Assuming that all necessary Python libraries have been correctly installed and that other necessary setup steps have been performed, running the module named “launch_workforcesim_GUI.py” should launch a Tkinter-based GUI, while one’s Python console window should display a message stating “Welcome to Synaptans WorkforceSim™! This software is ©2021-22 NeuraXenetica LLC and made available for use under GNU General Public License Version 3. Please use the main interface window (which should open separately) to configure and run the simulation.” The main interface window opens with default dimensions of 1200×700 pixels; in Windows, its size can be adjusted (within certain limits) by manually clicking and dragging its edges or by clicking the icons near the upper right corner to “Maximize” or “Restore Down” the window.
-
-One can terminate the main interface window by pressing “Escape” or (in Windows) clicking on the “X” in its upper right corner.
-
-The program is not guaranteed to run successfully on all devices. The software is distributed “as is” and with no warranties of any kind, whether express or implied; users assume all risk of using the software. (Please see the accompanying “Synaptans WorkforceSim license - GNU GPL V3.txt” file for more details.)
-
-░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
-THE OPERATIONS SCREEN
-░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
-
-If you accept the license terms presented in the main interface window’s initial screen, you can click on the button labelled “Click to accept End-User License Agreement and continue” to load the program’s operations screen. The operations screen is the place where a user can specify the parameters for the simulation, click to run the simulation, and then view visualizations of the results.
-
------------------------------------------------
-SPECIFYING THE ARGUMENTS FOR A SIMULATION
------------------------------------------------
-
-There are a number of arguments whose values can be specified by a user, prior to running the simulation. By default, when the operations screen appears, values are already provided for all of these variables; a value can be changed by selecting or deleting it and typing a different number in that box. The significance of these variables is explained below.
-
-▶ The box labelled “Minimum age for an individual” accepts an integer as its value; the default value is 20 and permissible values range from 16-99. Each member of the simulated workforce will have a randomly assigned age that is (on the first day of simulated activity) greater than or equal to the specified number.
-
-▶ The box labelled “Maximum age for an individual” accepts an integer as its value; the default value is 65 and permissible values range from 40-100. Each member of the simulated workforce will have a randomly assigned age that is (on the first day of simulated activity) less than or equal to the specified number.
-
-▶ The box labelled “Desired number of personnel” accepts an integer as its value; the default value is 724 persons. This number represents the size of the workforce desired by a user; however, the actual size of the workforce used in the simulation may differ somewhat from the number inputted here. This is due to several factors. First, the minimum size of a workforce that can be handled by the simulation is 52 persons; any inputted figure smaller than 52 will thus be rounded up to 52 by the system. Second, the maximum size of a workforce that can be processed by the simulation is 4996 persons; any inputted figure larger than 4996 will thus be rounded down to 4996 by the system. Third, the current version of the software requires each Team Leader to supervise an equal number of Laborers, and because the factory has 24 Team Leaders, this means that the total number of Laborers must be evenly divisible by 24; added to that will be 4 more persons, in the form of the three Shift Managers and one Production Director. The number inputted by the user will thus be rounded to a figure equalling (24n + 4), where n is an integer. (724 is an example of such a number; others are 100, 964, and 4996.)
-
-▶ The box labelled “Mean value for ATD stat” accepts a floating-point number as its value; the default value is 0.91, and permissible values range from 0.0-1.0. This number is used to randomly generate an average attendance rate (“ATD”) for each person in the workforce. The number inputted here is the mean used by the random-number generator, in conjunction with the box beneath it labelled “Standard deviation for ATD stat,” which is the standard deviation used by the random-number generator and is a floating-point number with a default value of 0.09; permissible values are between 0.0 and 1.0. Note that the “Mean value for ATD stat” entered by a user may not be the actual average value of the ATD stat that is ultimately possessed by members of the virtual workforce. This might become apparent, for example, if the “Mean value for ATD stat” is set at a value close to 1.0 (say, 0.98) and the “Standard deviation for ATD stat” is relatively large (say, 0.4). In this case, the random-number generator will produce a number greater than 1.0 for many persons; however, an individual’s rate of attendance cannot be greater than 1.0, so many persons’ ATD stats will be adjusted downward by the system to a value of 1.0.
-
-▶ The boxes labelled “Mean value for other stats” and “Standard deviation for other stats” function similarly. They both accept floating-point numbers, with permissible values ranging from 0.0-1.0. The former has a default value of 0.73 and the later a default value of 0.17. The fact that the default mean value for other stats is lower than the default mean value for the ATD stat reflects the reality that factory workers may viably possess personal psychological characteristics and capacities that span a wide range of strengths and weaknesses; for example, one employee may possess a degree of extroversion, positivity, technological aptitude, honesty, or conscientiousness that greatly exceeds (or falls short of) that of another employee. However, workers whose average long-term attendance rate falls below a certain point will typically not be able to remain a part of the workforce.
-
-▶ The box labelled “Random seed A” accepts an integer as its value; the default value is 11. This number is used as a seed for some of the simulator’s random number generators; allowing a user to specify the seed’s value makes it easier to investigate the varying range of results that can be obtained when all of the other arguments are left with their original values but the randomizing components of the simulator generate different random numbers.
-
-▶ The box labelled “Number of days to simulate” accepts an integer as its value; the default value is 30, and permissible values range from 1-200. This is the number of days of simulated workplace activity that should be calculated by the program. This version of the software does not model any dynamics relating, for example, to differences in average productivity displayed by workers on different days of the week, nor does it distinguish between weekdays and weekends. If one runs the simulation for 10 days, one could conceptualize that either as two weeks of five working days each, or as a single span of 10 contiguous days; this version of the software does not distinguish between the two realities.
-
------------------------------------------------
+███████████████████████████████████████████████████████
 RUNNING THE SIMULATION
------------------------------------------------
+███████████████████████████████████████████████████████
 
-Once a user is satisfied with the values of all the arguments to be used by the model, the simulation can be run by clicking on the button labelled “Click to run the simulation!” 
+It is possible for a user to configure the simulation’s parameters by manually modifying the value of certain variables defined in the config.py module, including the number of Laborers who belong to each Team (which determines the overall size of the factory’s workforce) and the number of days of activity to be simulated.
 
-If the button remains visibly depressed after clicking on it and releasing the mouse button, this indicates that the program has begun the simulation’s calculations, which may require some time (especially if the size of the workforce and number of days to be simulated are large).
+Assuming that all necessary external packages have been installed and dependencies have been satisfied, the WorkforceSim package can be executed by running its executor.py module.
 
-On the other hand, if (a) the button does not remain depressed but instead returns to its initial state when the mouse button is released and (b) new visualizations have not appeared in the lower section of the operations screen, this indicates that one or more of the values provided in the input boxes at the top of the operations screen are invalid, and the simulation is not able to perform any calculations. In this case, a user should carefully review the contents of the input boxes (e.g., to be sure that fields requiring numbers as input do not include any letters and that fields requiring integers as input do not include floating-point numbers) and try again.
-
-If the program made any adjustments to the raw values inputted by a user when running the simulation, the final values that were actually used by the simulation will appear in the input boxes at the top of the operations screen after processing of the simulation has concluded and its visualizations have been generated. This may occur, for example, if the value provided by a user for “Desired number of personnel” or “Number of days to simulate” exceeded the maximum value permitted by the simulation or the “Desired number of personnel” was rounded off to a figure usable by the simulation.
-
-Once the simulator has finished calculating the workforce’s activity using the specified arguments, the console window will display a message stating “Simulation results have been calculated.”, and a set of visualizations should appear shortly in the main interface window, in the results section at the bottom of the operations screen. The console will display a similar “Simulation results have been calculated.” message (and the visualizations will be updated) each time the simulation is re-run with new workforce configuration arguments.
-
-CONTENTS OF A SIMULATED DAY IN THE WORKPLACE
-
-In addition to calculating certain static elements (e.g., workers’ core stats and role in the organizational hierarchy) once at the start of a simulation, the simulator also dynamically models certain activities on the part of persons that vary from day to day throughout the simulated period. 
-
-▶ A person’s “Efficacy” is his or her degree of productivity on a given day, as measured against the maximum degree of productivity that could reasonably be expected from a person filling a given role. For a given worker on a given day, his or her Efficacy score is a weighted average of the person’s IND, SPD, and RSP stats, as adjusted by a randomly generated positive or negative number. Over the long run, a person with high IND, SPD, and RSP stats will have a higher average Efficacy than a person with low IND, SPD, and RSP stats; however, there may be particular days on which the latter’s Efficacy exceeds that of the former. When using the simulator’s default arguments, it might be expected that the average Efficacy displayed by all persons across entire simulated period will be somewhere in the range of 0.8-0.9. It is not possible for a person’s daily Efficacy score to be less than 0.0; it is possible (though typically unlikely) for it to be greater than 1.0. It should be noted that Efficacy is a generic productivity score that is applicable to all persons, regardless of their roles: the simulator calculates daily Efficacy scores for the factory’s Production Director and Shift Managers, as well as for its Team Leaders and Laborers – although the exact meaning of such “Efficacy” would vary, depending on a person’s role.
-
-▶ For every day during the simulated period, every person displays a particular level of Efficacy. In addition to that, there are certain noteworthy positive or negative behaviors that persons may display on occasion, but not every day (or even frequently). Such qualitatively remarkable actions cannot easily be captured in the strictly quantitative Efficacy score, thus they are modelled separately. A “Good” behavior is such an exceptional positive action performed by a person, while a “Poor” behavior is such an exceptional negative action. The question of whether a particular person performs a Good or Poor action (or both) on a given day is determined by the simulator separately from the question of whether he or she displayed a high or low degree of Efficacy on that day. It is possible for a person to perform a Good action on a day on which he or she had a low Efficacy, or to perform a Poor action on a day on which he or she had a high Efficacy. As hypothetical examples of Good actions, one might imagine a Laborer who takes time to help or tutor a teammate who is struggling with some task, a Team Leader who develops some ingenious way of reducing the number of faults generated by particular machine, or a Shift Manager who gives an especially inspiring speech that strengthens’ Laborers sense of enthusiasm and engagement. Conversely, hypothetical Poor actions might include a Laborer who causes an accident by ignoring safety rules, a Team Leader who unleashes an angry outburst that depresses Laborers’ morale, or a Shift Manager who engages in some obvious act of favoritism or dishonesty that weakens Laborers’ motivation and sense of engagement. A given person performs a Good behavior on a particular day if the weighted average of multiple relevant core stats (including RCN, RSP, SPT, and TCH) is *greater than* or equal to a threshold value plus some randomly generated positive number; he or she performs a Poor behavior if the weighted average of multiple relevant core stats (including ORD, POS, and RSP) is *less than* or equal to a threshold value plus some randomly generated positive number. (It is anticipated that in future versions of the software, the simulator will be able to generate period Good and Poor behaviors on the basis of persons possessing a low score in just a single core stat.) It is possible for a person to perform a Good and a Poor behavior on the same day. 
-
------------------------------------------------
+●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●
 VIEWING THE RESULTS OF A SIMULATION
------------------------------------------------
+●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●
 
-Once the program has calculated each person’s activities for all days of the period simulated, it will generate a number of figures that visualize various aspects of the results. In particular:
+Once the program has calculated each worker’s actual behaviors (and each manager’s recording of behaviors) for all days of the period simulated, it will generate a number of figures that visualize various aspects of the results. These are outputted as PNG files saved in the package’s “output files” folder. An XLSX file containing selected info regarding the organizational workforce is also generated.
 
-▶ The figure labelled “Distribution of value of persons’ worker capacity (WRKR_CAP) score” is a histogram showing how many of the factory’s personnel have a worker capacity score that falls within a particular range. In general, the more persons the workforce includes, the smoother the distribution curve will be.
-
-▶ The figure labelled “Distribution of value of persons’ managerial capacity (MNGR_CAP) score” is a histogram showing how many persons have a managerial capacity score that falls within a particular range.
-
-▶ The figure labelled “Values of each person’s WRKR_CAP and MNGR_CAP scores” is a scatter plot illustrating the relationship between persons’ worker capacity scores (on the x-axis) and managerial capacity scores (on the y-axis).
-
-▶ The figure labelled “Values of each person’s age and MNGR_CAP score” is a scatter plot presenting the relationship between persons’ age and their managerial capacity score.
-
-▶ The figure labelled “Average value of persons’ WRKR_CAP scores by shift” is a column graph showing the average value of the worker capacity scores possessed by members (i.e., Laborers, Team Leaders, and Shift Managers) of each of the three shifts. The column labelled “unassigned” reflects the worker capacity scores of the factory’s Production Director, who is not assigned to any particular shift.
-
-▶ The figure labelled “Average value of persons’ MNGR_CAP scores by role filled” is a column graph presenting the average value of the worker capacity scores possessed by persons filling different roles within the factory. (Because there is only one Production Director, the “average” value displayed in the “Production Director” column is equal to that person’s managerial capacity score.)
-
-▶ The figure labelled “Average value of persons’ WRKR_CAP scores by team” is a column graph illustrating the average worker capacity score possessed by members of each of the 24 Teams. The column labelled “unassigned” reflects the worker capacity scores of the factory’s Production Director and Shift Managers, who are not assigned to any particular team.
-
-▶ The figure labelled “Values of each person’s WRKR_CAP scores and mean daily Efficacy” is a scatter plot presenting the relationship between persons’ worker capacity score and their mean daily  Efficacy.
-
-▶ The figure labelled “Number of persons’ Good and Poor workplace actions performed” is a two-dimensional histogram showing how many persons performed quantities of Good and Poor workplace actions that fall within particular numerical ranges. In general, the larger the number of persons included in the virtual workforce and the longer the simulated period of time, the smoother the histogram will appear.
-
-░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
+███████████████████████████████████████████████████████
 DEVELOPMENT
-░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
+███████████████████████████████████████████████████████
 
-Synaptans WorkforceSim™ is developed with support from Cognitive Firewall LLC and NeuraXenetica LLC by Matthew E. Gladden. The choice of the name “Synaptans” acknowledges the origins of some of the simulation’s underlying code in code written for a computer game in the “Utopian Confederation” game series, inspired by the seminal 16th-century philosophical text of St. Thomas More. In that game, “synaptans” is one of many ranks found within the administrative hierarchy of the Utopian Confederation, as it exists in the 22nd century.
+Synaptans WorkforceSim™ is free open-source software developed by Matthew E. Gladden, with support from Cognitive Firewall LLC and NeuraXenetica LLC. 
 
-©2021-2022 NeuraXenetica LLC
+The choice of the name “Synaptans” acknowledges the origins of some of the simulation’s underlying code in code written for a computer game in the “Utopian Confederation” game series, inspired by the seminal 16th-century philosophical text of St. Thomas More. In that game, “synaptans” is one of many ranks found within the administrative hierarchy of the Utopian Confederation, as it exists in the 22nd century.
+
+Synaptans WorkforceSim code and documentation ©2021-2022 NeuraXenetica LLC

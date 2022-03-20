@@ -13,11 +13,26 @@
 # ╚════════════════════════════════════════════════════════════════════╝
 
 """
-This module handles the reading of files from disk (e.g., XLSX files or
-PNG images); the writing of files to disk (e.g., saving DataFrames as
-XLSX files or Matplotlib plots as PNG images; and the saving of complex
-objects as file-like objects assigned to variables in memory (e.g.,
-Matplotlib plots as in-memory PNGs for display in a GUI).
+This module handles the simulation’s “Level 4” logic, which evaluates
+the accuracy and business value of the analyses and predictions made by
+various machine-learning techniques at Level 3 by comparing them to
+workers’ *actual* characteristics and behaviors (generated at Levels 0
+and 1).
+
+This makes it possible to assess, for example, (1) what types of
+information regarding workers’ behaviors must be recorded, with what
+frequency, and for how large a workforce in order for the data present
+in the HRM/ERP system to allow machine learning algorithms to accurately
+predict future worker behaviors; (2) how much variation (e.g., in
+perceptiveness, objectivity, and completeness) can exist between
+individual managers’ approches to recording workers’ behaviors without
+undermining AI’s ability to detect certain trends and correlations or
+compromising the AI’s ability to accurately distinguish between the
+organization’s “more effective” and “less effective” workers; and (3)
+which forms of machine learning and AI are able to best predict
+workers’ future behaviors despite the “noise” produced by certain
+managers’ fragmentary, biased, or otherwise inaccurate manner of
+recording workers’ past behaviors in the HRM/ERP system.
 """
 
 # ██████████████████████████████████████████████████████████████████████
@@ -43,8 +58,6 @@ Matplotlib plots as in-memory PNGs for display in a GUI).
 # █ Import standard modules
 # ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 
-import os
-
 
 # ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 # █ Import third-party modules
@@ -55,8 +68,6 @@ import os
 # █ Import other modules from the WorkforceSim package
 # ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 
-import config as cfg
-
 
 # ██████████████████████████████████████████████████████████████████████
 # ██████████████████████████████████████████████████████████████████████
@@ -65,34 +76,6 @@ import config as cfg
 # ███
 # ██████████████████████████████████████████████████████████████████████
 # ██████████████████████████████████████████████████████████████████████
-
-def specify_directory_structure():
-    """
-    Specifies the directory structure for file reading and writing.
-    """
-
-    cfg.current_working_dir = os.getcwd()
-
-    cfg.input_files_dir = os.path.abspath(
-        os.path.join(cfg.current_working_dir, 'input_files\\'))
-#    print("cfg.input_files_dir:", cfg.input_files_dir)
-
-    cfg.output_files_dir = os.path.abspath(
-        os.path.join(cfg.current_working_dir, 'output_files\\'))
-    print("cfg.output_files_dir: ", cfg.output_files_dir)
-
-
-def save_df_to_xlsx_file(
-    input_df_u, # the input DF
-    filename_u, # the desired filename (without .xlsx ending)
-    ):
-    """
-    Saves a DataFrame to disk as an XLSX file.
-    """
-
-    full_filename = filename_u + ".xlsx"
-    filename_and_path = os.path.join(cfg.output_files_dir, full_filename)
-    input_df_u.to_excel(filename_and_path)
 
 
 

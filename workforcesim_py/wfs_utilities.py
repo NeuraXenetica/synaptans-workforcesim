@@ -13,11 +13,9 @@
 # ╚════════════════════════════════════════════════════════════════════╝
 
 """
-This module handles the reading of files from disk (e.g., XLSX files or
-PNG images); the writing of files to disk (e.g., saving DataFrames as
-XLSX files or Matplotlib plots as PNG images; and the saving of complex
-objects as file-like objects assigned to variables in memory (e.g.,
-Matplotlib plots as in-memory PNGs for display in a GUI).
+This module includes general initialization functions that don’t relate
+to just a single level of the simulation’s logic, along with other
+general time-saving utility functions.
 """
 
 # ██████████████████████████████████████████████████████████████████████
@@ -43,8 +41,6 @@ Matplotlib plots as in-memory PNGs for display in a GUI).
 # █ Import standard modules
 # ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 
-import os
-
 
 # ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 # █ Import third-party modules
@@ -55,8 +51,6 @@ import os
 # █ Import other modules from the WorkforceSim package
 # ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 
-import config as cfg
-
 
 # ██████████████████████████████████████████████████████████████████████
 # ██████████████████████████████████████████████████████████████████████
@@ -66,33 +60,87 @@ import config as cfg
 # ██████████████████████████████████████████████████████████████████████
 # ██████████████████████████████████████████████████████████████████████
 
-def specify_directory_structure():
+def sort_df_by_given_field_descending(df_u, col_name_u):
     """
-    Specifies the directory structure for file reading and writing.
+    Sorts a DataFrame by a given column (descending).
     """
 
-    cfg.current_working_dir = os.getcwd()
-
-    cfg.input_files_dir = os.path.abspath(
-        os.path.join(cfg.current_working_dir, 'input_files\\'))
-#    print("cfg.input_files_dir:", cfg.input_files_dir)
-
-    cfg.output_files_dir = os.path.abspath(
-        os.path.join(cfg.current_working_dir, 'output_files\\'))
-    print("cfg.output_files_dir: ", cfg.output_files_dir)
+    df_sorted = df_u.copy()
+    df_sorted = df_sorted.sort_values(by=col_name_u, ascending=False)
+    return df_sorted
 
 
-def save_df_to_xlsx_file(
+def return_df_with_selected_cols_from_df(
     input_df_u, # the input DF
-    filename_u, # the desired filename (without .xlsx ending)
+    cols_to_keep_u, # a list of columns to keep in the new DF
     ):
     """
-    Saves a DataFrame to disk as an XLSX file.
+    Returns a DataFrame with selected columns from an inputted DataFrame.
     """
 
-    full_filename = filename_u + ".xlsx"
-    filename_and_path = os.path.join(cfg.output_files_dir, full_filename)
-    input_df_u.to_excel(filename_and_path)
+    new_df = input_df_u[cols_to_keep_u]
+    return new_df
+
+
+def return_df_with_selected_cols_deleted(
+    input_df_u, # the input DF
+    cols_to_delete_u, # a list of columns to delete from the DF
+    ):
+    """
+    Returns a DataFrame with selected columns deleted.
+    """
+
+    new_df = input_df_u.drop(columns=cols_to_delete_u)
+    return new_df
+
+
+def return_df_with_rows_filtered_to_one_val_in_col(
+    input_df_u, # the input DF
+    col_by_which_to_filter_rows_u, # the column by which to filter rows
+    val_to_seek_in_col, # the value to seek in the col (i.e., the restrictor)
+    ):
+    """
+    Returns a DF with only those rows possessing a particular
+    specified value in a particular column.
+    """
+
+    new_df = input_df_u[ input_df_u[col_by_which_to_filter_rows_u] == val_to_seek_in_col ]
+    return new_df
+
+
+def return_df_with_col_one_hot_encoded(
+    input_df_u, # the input DF
+    col_to_one_hot_encode_u, # the column to one-hot encode
+    ):
+    """
+    Returns a DataFrame with new columns added that one-hot encode
+    a specified already existing column.
+    """
+
+    new_df = input_df_u.copy()
+
+    # Create the blank new one-hot-encoding columns.
+    for u in new_df[col_to_one_hot_encode_u].unique().tolist():
+
+#        col_name = str(col_to_one_hot_encode_u) + ": " + str(u)
+        col_name = str(u) + " (" + str(col_to_one_hot_encode_u) + ")"
+        new_df[col_name] = None
+
+    # Populate the values of the newly created one-hot-encoding columns.
+    for i in range(len(new_df)):
+#        try:
+        # Find the new OHE column that corresponds to the 
+        # value that was in the column to be one-hot encoded.
+#        col_name = str(col_to_one_hot_encode_u) + ": " + str(new_df[col_to_one_hot_encode_u].values[i])
+        col_name = str(new_df[col_to_one_hot_encode_u].values[i]) + " (" + str(col_to_one_hot_encode_u) + ")"
+
+        # Write 1 into the relevant OHE column.
+        new_df[col_name].values[i] = 1
+
+ #       except:
+ #           pass
+
+    return new_df
 
 
 

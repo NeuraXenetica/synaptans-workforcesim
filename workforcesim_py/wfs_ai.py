@@ -13,11 +13,17 @@
 # ╚════════════════════════════════════════════════════════════════════╝
 
 """
-This module handles the reading of files from disk (e.g., XLSX files or
-PNG images); the writing of files to disk (e.g., saving DataFrames as
-XLSX files or Matplotlib plots as PNG images; and the saving of complex
-objects as file-like objects assigned to variables in memory (e.g.,
-Matplotlib plots as in-memory PNGs for display in a GUI).
+This module handles the simulation’s “Level 3” logic, which uses various
+machine-learning techniques in an attempt to identify meaningful trends,
+causal relationships, and other correlations relating to workers’
+personal characters and workplace behaviors and to attempt to predict
+workers’ future behavior – either absolutely or in response to
+particular changes that might be implemented in the workplace. In
+generating such analyses and predictions, the AI *does not* have access
+to workers’ actual personal characteristics or behaviors; rather, it
+only has access to the records made in the organization’s HRM/ERP system
+by its frontline managers – which may or may not reflect workers’ actual
+characteristics and behaviors in a fully accurate manner.
 """
 
 # ██████████████████████████████████████████████████████████████████████
@@ -43,8 +49,6 @@ Matplotlib plots as in-memory PNGs for display in a GUI).
 # █ Import standard modules
 # ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 
-import os
-
 
 # ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 # █ Import third-party modules
@@ -55,8 +59,6 @@ import os
 # █ Import other modules from the WorkforceSim package
 # ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 
-import config as cfg
-
 
 # ██████████████████████████████████████████████████████████████████████
 # ██████████████████████████████████████████████████████████████████████
@@ -65,34 +67,6 @@ import config as cfg
 # ███
 # ██████████████████████████████████████████████████████████████████████
 # ██████████████████████████████████████████████████████████████████████
-
-def specify_directory_structure():
-    """
-    Specifies the directory structure for file reading and writing.
-    """
-
-    cfg.current_working_dir = os.getcwd()
-
-    cfg.input_files_dir = os.path.abspath(
-        os.path.join(cfg.current_working_dir, 'input_files\\'))
-#    print("cfg.input_files_dir:", cfg.input_files_dir)
-
-    cfg.output_files_dir = os.path.abspath(
-        os.path.join(cfg.current_working_dir, 'output_files\\'))
-    print("cfg.output_files_dir: ", cfg.output_files_dir)
-
-
-def save_df_to_xlsx_file(
-    input_df_u, # the input DF
-    filename_u, # the desired filename (without .xlsx ending)
-    ):
-    """
-    Saves a DataFrame to disk as an XLSX file.
-    """
-
-    full_filename = filename_u + ".xlsx"
-    filename_and_path = os.path.join(cfg.output_files_dir, full_filename)
-    input_df_u.to_excel(filename_and_path)
 
 
 
