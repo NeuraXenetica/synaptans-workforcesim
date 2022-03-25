@@ -1,4 +1,4 @@
-## Synaptans WorkforceSim, version 0.1.91
+## Synaptans WorkforceSim, version 0.1.912
 
 Synaptans WorkforceSim is a free open-source platform for simulating the dynamics of a factory workforce and assessing various AI-based approaches to predictive analytics in the workplace. The program exists as a Python package that allows users to configure the simulation’s parameters, run the simulation, and view an array of charts and graphs that visualize the results. The simulation’s logic is intended to operate at four levels:
 
