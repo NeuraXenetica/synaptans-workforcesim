@@ -50,7 +50,7 @@ In addition to `__init__.py`, this Python package includes the following modules
 
 - `wfs_executor.py` | This simple module runs the simulation, accepting the arguments provided by a user to (1) create a simulated workforce; (2) simulate workers’ daily activity for a specified number of days and quantity of workers; (3) generate the (potentially inaccurate) records of such workplace behaviors made by workers’ frontline managers; (4) employ AI in an attempt to discover trends and correlations in the records’ data and generate predictions; and then (5) assess the accuracy of those analyses and predictions by comparing them with what we know to be the case regarding workers’ actual past and expected future behaviors.
 
-![Plots exported from Synaptans WorkforceSim](https://github.com/NeuraXenetica/synaptans-workforcesim/blob/c17de568c551cc1b7c620c02918bba1f1189bb54/docs/assets/images/Synaptans_WorkforceSim_exported_plots_02.png)
+![Plots exported from Synaptans WorkforceSim](/docs/assets/images/Synaptans_WorkforceSim_exported_plots_02.png)
 
 ___
 ## STRUCTURE AND DYNAMICS OF THE SIMULATED WORKFORCE
