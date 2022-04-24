@@ -3,10 +3,11 @@
 Synaptans WorkforceSim is a free open-source platform for simulating the dynamics of a factory workforce and then employing such simulated behaviors of frontline workers and managers as a basis for assessing various AI-based approaches to predictive analytics in the workplace (e.g., by conducting sensitivity analysis for various algorithms and comparing such algorithms’ ability to uncover “hidden” trends and correlations that are known to be present in the data).
 
 The software is developed by Matthew E. Gladden (with support from Cognitive Firewall LLC and NeuraXenetica LLC) and is made available for use under GNU General Public License Version 3. Please see https://www.gnu.org/licenses/gpl-3.0.html.
-___
-## CONCEPTUAL OVERVIEW
 
 ![Plots exported from Synaptans WorkforceSim](https://github.com/NeuraXenetica/synaptans-workforcesim/blob/c17de568c551cc1b7c620c02918bba1f1189bb54/docs/assets/images/Synaptans_WorkforceSim_exported_plots_01.png)
+
+___
+## CONCEPTUAL OVERVIEW
 
 The simulation’s logic is intended to operate at four levels:
 
@@ -48,6 +49,8 @@ In addition to `__init__.py`, this Python package includes the following modules
 - `wfs_visualizer.py` (imported as `vis`) | This module handles visualization of the simulation’s results. It is capable of generating a wide range of histograms, bar plots, scatterplots, and other plots illustrating temporal trends and the relationships between particular variables.
 
 - `wfs_executor.py` | This simple module runs the simulation, accepting the arguments provided by a user to (1) create a simulated workforce; (2) simulate workers’ daily activity for a specified number of days and quantity of workers; (3) generate the (potentially inaccurate) records of such workplace behaviors made by workers’ frontline managers; (4) employ AI in an attempt to discover trends and correlations in the records’ data and generate predictions; and then (5) assess the accuracy of those analyses and predictions by comparing them with what we know to be the case regarding workers’ actual past and expected future behaviors.
+
+![Plots exported from Synaptans WorkforceSim](https://github.com/NeuraXenetica/synaptans-workforcesim/blob/c17de568c551cc1b7c620c02918bba1f1189bb54/docs/assets/images/Synaptans_WorkforceSim_exported_plots_02.png)
 
 ___
 ## STRUCTURE AND DYNAMICS OF THE SIMULATED WORKFORCE
