@@ -4,7 +4,7 @@ Synaptans WorkforceSim is a free open-source platform for simulating the dynamic
 
 The software is developed by Matthew E. Gladden (with support from Cognitive Firewall LLC and NeuraXenetica LLC) and is made available for use under GNU General Public License Version 3. Please see https://www.gnu.org/licenses/gpl-3.0.html.
 
-![Plots exported from Synaptans WorkforceSim](https://github.com/NeuraXenetica/synaptans-workforcesim/blob/c17de568c551cc1b7c620c02918bba1f1189bb54/docs/assets/images/Synaptans_WorkforceSim_exported_plots_01.png)
+![Plots exported from Synaptans WorkforceSim](/docs/assets/images/Synaptans_WorkforceSim_exported_plots_01.png)
 
 ___
 ## CONCEPTUAL OVERVIEW
