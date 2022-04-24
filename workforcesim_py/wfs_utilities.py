@@ -41,6 +41,9 @@ general time-saving utility functions.
 # █ Import standard modules
 # ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 
+import datetime
+from datetime import timedelta
+
 
 # ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 # █ Import third-party modules
@@ -50,6 +53,8 @@ general time-saving utility functions.
 # ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 # █ Import other modules from the WorkforceSim package
 # ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+
+import config as cfg
 
 
 # ██████████████████████████████████████████████████████████████████████
@@ -122,25 +127,68 @@ def return_df_with_col_one_hot_encoded(
     # Create the blank new one-hot-encoding columns.
     for u in new_df[col_to_one_hot_encode_u].unique().tolist():
 
-#        col_name = str(col_to_one_hot_encode_u) + ": " + str(u)
         col_name = str(u) + " (" + str(col_to_one_hot_encode_u) + ")"
         new_df[col_name] = None
 
     # Populate the values of the newly created one-hot-encoding columns.
     for i in range(len(new_df)):
-#        try:
+        #try:
         # Find the new OHE column that corresponds to the 
         # value that was in the column to be one-hot encoded.
-#        col_name = str(col_to_one_hot_encode_u) + ": " + str(new_df[col_to_one_hot_encode_u].values[i])
         col_name = str(new_df[col_to_one_hot_encode_u].values[i]) + " (" + str(col_to_one_hot_encode_u) + ")"
 
         # Write 1 into the relevant OHE column.
         new_df[col_name].values[i] = 1
 
- #       except:
- #           pass
+        #except:
+        #   pass
 
     return new_df
+
+
+def return_df_with_rows_deleted_that_containing_na_in_col(
+    input_df_u, # the input DF whose rows should be deleted
+    col_u, # the column in which an Na value will cause row deletion
+    ):
+
+    input_df_u = input_df_u[input_df_u[col_u].notna()]
+    return input_df_u
+
+
+def return_week_in_series_for_given_date(
+    input_date_u, # the date whose week should be returned
+    ):
+    """
+    Returns the week (int) where a given inputted date falls,
+    within the series of all weeks in the dataset.
+    """
+
+    # Calculate the difference in days from the inputted date 
+    # to the starting date of the dataset, divide by 7, and drop the remainder.
+    starting_date = datetime.datetime.strptime(cfg.sim_starting_date, '%Y-%m-%d').date()
+    days_difference_m = input_date_u - starting_date
+    days_difference_m = float(days_difference_m.days)
+    week_in_series = int( days_difference_m / 7 )
+    return week_in_series
+
+
+def return_date_of_final_day_to_simulate(
+    ):
+
+    starting_date = datetime.datetime.strptime(cfg.sim_starting_date, '%Y-%m-%d').date()
+    days_num = cfg.num_of_days_to_simulate
+
+    current_date = starting_date
+
+    for i in range(0, days_num - 1):
+
+        if current_date.weekday() == 4:
+            current_date += timedelta(days = 3)
+        else:
+            current_date += timedelta(days = 1)
+
+    final_date = current_date
+    return final_date
 
 
 

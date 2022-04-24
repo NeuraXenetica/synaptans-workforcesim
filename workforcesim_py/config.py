@@ -44,6 +44,64 @@ multiple modules.
 # ██████████████████████████████████████████████████████████████████████
 # ██████████████████████████████████████████████████████████████████████
 
+# ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+# █ Basic configuration variables
+# ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+
+# ---------------------------------------------------------------------
+# Variables relating to I/O and files.
+# ---------------------------------------------------------------------
+current_working_dir = "" # This value will be calculated.
+input_files_dir = "" # This value will be calculated.
+output_files_dir = "" # This value will be calculated.
+export_path_and_filename = "" # This value will be calculated.
+
+
+# ---------------------------------------------------------------------
+# Core simulation configuration variables.
+# ---------------------------------------------------------------------
+
+# A unique code for the given run of the simulation, which can be used
+# as a prefix for the files to be saved that are associated with the run.
+unique_file_prefix_code_for_simulation_run = None
+
+random_seed_A = 4 # ◀■=■=■=■=■
+#random_seed_B = 0
+#random_seed_C = 0
+#random_seed_D = 0
+
+# The overall "strength of effect" modifier that influences
+# the strength of a number of effects (e.g., interdependencies).
+strength_of_effect = 0.25
+
+# If an OEE system is in use, each manager records workers' Efficacy
+# with 100% accuracy. If no OEE system is in use, the manager makes a 
+# subjective estimate of workers' Efficacy.
+oee_system_in_use = False
+
+emp_id_starting_value = 0 # This value will be calculated.
+
+
+# ---------------------------------------------------------------------
+# Variables relating to simulation iteration date and time.
+# ---------------------------------------------------------------------
+sim_starting_date = "2021-12-13"
+
+# The number of days must be >1, in order to avoid problem when
+# generating the SD of certain entry values (e.g., Efficacy behaviors).
+# This is the number of *workdays* that should actually be simulated,
+# which (because of the existence of weekends) is less than the number
+# of calendar days spanned by the period.
+num_of_days_to_simulate = 10 # ◀■■■■■■■
+
+current_datetime_obj = None # This value will be calculated.
+day_of_sim_iter = 0 # This value will be updated; 0 is the first simulated day.
+
+
+# ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+# █ Personnel-related variables
+# ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+
 # ---------------------------------------------------------------------
 # Variables relating to personnel and the community as a whole.
 # ---------------------------------------------------------------------
@@ -87,64 +145,16 @@ sphere_of_given_team = [] # This value will be calculated.
 
 
 # ---------------------------------------------------------------------
-# Variables relating to workers' daily behaviors.
-# ---------------------------------------------------------------------
-
-# The master DF containing an entry for every actual behavior performed
-# by workers (including a worker's absence, which is itself a sort of
-# behavior).
-behavs_act_df = None
-
-
-# ---------------------------------------------------------------------
-# Variables relating to simulation iteration date and time.
-# ---------------------------------------------------------------------
-current_datetime_obj = None # This value will be calculated.
-day_of_sim_iter = 0 # This value will be calculated.
-
-
-# ---------------------------------------------------------------------
-# Variables supplied (or confirmed) by a user in the program's GUI.
+# Workforce configuration variables.
 # ---------------------------------------------------------------------
 min_person_age = 18
 max_person_age = 65
 #ATD_stat_mean = 0.8
 #ATD_stat_sdev = 0.2
-other_stats_stat_mean = 0.8
-other_stats_stat_sdev = 0.2
-random_seed_A = 1
-#random_seed_B = 0
-#random_seed_C = 0
-#random_seed_D = 0
-sim_starting_date = "2021-12-13"
-num_of_days_to_simulate = 5 # ◀■■■■■■■
+other_stats_stat_mean = 0.8 # ◀■=■=■=■=■
+other_stats_stat_sdev = 0.2 # ◀■=■=■=■=■
 
-
-# ---------------------------------------------------------------------
-# Base rates for particular actions by personnel.
-# ---------------------------------------------------------------------
-base_rate_attendance = 0.93
-base_rate_idea = 0.08
-base_rate_lapse = 0.05
-base_rate_feat = 0.08
-base_rate_slip = 0.05
-base_rate_teamwork = 0.08
-base_rate_disruption = 0.05
-base_rate_sacrifice = 0.08
-base_rate_sabotage = 0.05
-base_rate_efficacy = 0.42
-base_rate_recording_accuracy = 0.85
-base_rate_false_positive = 0.01
-
-strength_of_effect = 0.25
-
-
-# ---------------------------------------------------------------------
-# Workforce configuration variables.
-# ---------------------------------------------------------------------
-
-#Set the initial size of the community.
-
+# Set the initial size of the community.
 # The total number of "Laborers" proper (and not persons more generally)
 # who should be part of each team.
 #
@@ -179,20 +189,186 @@ strength_of_effect = 0.25
 #       207                             4996
 #       208                             5020
 #
-num_of_laborers_per_team = 5 # ◀■■■■■■■
+num_of_laborers_per_team = 1 # ◀■■■■■■■
 
 # This value will be calculated, based on num_of_laborers_per_team.
 size_of_comm_initial = 0
 
 num_of_teams_per_shift = 8 # This value will be calculated?
 
-emp_id_starting_value = 10001
 
-# If an OEE system is in use, each manager records workers' Efficacy
-# with 100% accuracy. If no OEE system is in use, the manager makes a 
-# subjective estimate of workers' Efficacy.
-oee_system_in_use = False
+# ---------------------------------------------------------------------
+# Workstyle group membership probabilities.
+# ---------------------------------------------------------------------
+# The probability that a newly created worker is assigned to
+# a given Workstyle group. For each demographic type, the sum of these 
+# numbers should be 1.0.
 
+workstyle_prob_older_female_A = 0.43
+workstyle_prob_older_female_B = 0.04
+workstyle_prob_older_female_C = 0.28
+workstyle_prob_older_female_D = 0.21
+workstyle_prob_older_female_E = 0.04
+
+workstyle_prob_younger_female_A = 0.28
+workstyle_prob_younger_female_B = 0.04
+workstyle_prob_younger_female_C = 0.37
+workstyle_prob_younger_female_D = 0.28
+workstyle_prob_younger_female_E = 0.03
+
+workstyle_prob_older_male_A = 0.39
+workstyle_prob_older_male_B = 0.28
+workstyle_prob_older_male_C = 0.21
+workstyle_prob_older_male_D = 0.10
+workstyle_prob_older_male_E = 0.02
+
+workstyle_prob_younger_male_A = 0.18
+workstyle_prob_younger_male_B = 0.37
+workstyle_prob_younger_male_C = 0.04
+workstyle_prob_younger_male_D = 0.21
+workstyle_prob_younger_male_E = 0.20
+
+
+# ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+# █ Variables relating to behaviors, records, and other actions
+# █ (including action probabilities, impacts, and contests)
+# ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+
+# ---------------------------------------------------------------------
+# Variables relating to workers' daily behaviors.
+# ---------------------------------------------------------------------
+
+# The master DF containing an entry for every actual behavior performed
+# by workers (including a worker's absence, which is itself a sort of
+# behavior).
+behavs_act_df = None
+
+
+# ---------------------------------------------------------------------
+# Base rates for particular actions by personnel.
+# ---------------------------------------------------------------------
+base_rate_attendance = 0.93
+base_rate_idea = 0.008
+base_rate_lapse = 0.08
+base_rate_feat = 0.008
+base_rate_slip = 0.08
+base_rate_teamwork = 0.008
+base_rate_disruption = 0.08
+base_rate_sacrifice = 0.008
+base_rate_sabotage = 0.08
+base_rate_efficacy = 0.32
+base_rate_false_positive = 0.01
+
+# If a person has, e.g., a Sociality stat of 0.85, this number is the multiplier
+# that determines how large an impact that stat will have on, e.g., the person's
+# probability of generating a Teamwork behavior. If the number below is 0.05,
+# then the person's personal base probability of generating a Teamwork behavior
+# will be increased by 0.85 * 0.05. In the case of Poor behaviors, the
+# multiplied stat is subtracted from (rather than added to) the base rate.
+stat_to_prob_mod_conv_factor = 0.05
+
+# Regardless of whether he belongs to a Workstyle group that adds additional
+# variability to his daily Efficacy, every worker's daily Efficacy behaviors
+# display a certain base level of variability, determined by this number.
+# This number is the "scale" for the np.random.normal function (centered on 0)
+# added to the modifier of a person's daily Efficacy score.
+base_max_efficacy_variability = 1.5
+
+# The base accuracy with which managers make records.
+base_rate_recording_accuracy = 0.65
+
+# Random ± variance added to actual Efficacy when a manager is
+# estimating that actual Efficacy in order to record it. The 
+# larger the number, the more inaccurate the Efficacy records
+# will be.
+#
+# NOTE! This is currently a plain random number; changing it to
+# a randomized number using a mean and SD would be more realistic. 
+variance_to_eff_as_recorded_by_manager = 0.25
+
+# This is the maximum amount of the modifier by which a person's
+# Efficacy level can be increased or decreased by
+# virtue of being in a Workstyle group with elevated or reduced (and not
+# simply average) Efficacy.
+# 
+# This value is multiplied by strength_of_effect
+# and by a random number (0.0-1.0), so for most persons, the actual Efficacy
+# multiplier resulting from membership in a workstyle group will be
+# significantly less than this number.
+workstyle_eff_level_modifier = 1.4 # ◀■=■=■=■=■
+
+# This is the maximum daily variability that can be added to the actual
+# Efficacy of a member of a Workstyle group that has "variable" Efficacy.
+# Members of groups with "stable" Efficacy add no such added variability.
+#
+# This value is multiplied by strength_of_effect
+# and by a random number (0.0-1.0), so for most persons, the actual Efficacy
+# variability resulting from membership in a workstyle group will be
+# significantly less than this number.
+workstyle_eff_max_daily_variability = 1.9 # ◀■=■=■=■=■
+
+# These are the maximum daily bonuses or penalties that give a particular
+# person an elevated or reduced probability of performing certain
+# types of actions (an Idea, a Slip, etc.) under certain circumstances.
+prob_elevation_for_disruption_due_to_workstyle = 0.04
+prob_reduction_for_disruption_due_to_workstyle = 0.5
+prob_elevation_for_idea_due_to_workstyle = 0.04
+prob_reduction_for_idea_due_to_workstyle = 0.57
+
+# These are the maximum daily bonuses or penalties that can be added to
+# a person's Efficacy modifier, based on a given factor such as:
+#     - the person's age
+#     - the current day of the week
+#     - the proportion of the person's teammates who are of the same sex
+#     - the difference in age between the person and his supervisor
+# This value is the maximum value "max" for the modifier random.uniform(0.0, max),
+# which is multiplied by the overall strength_of_effect.
+eff_bonus_max_from_person_age = 0.083
+eff_bonus_max_from_weekday = 0.65
+eff_bonus_max_from_teammate_sexes = 1.8
+eff_penalty_max_from_sup_age_diff = 0.04
+
+
+# ---------------------------------------------------------------------
+# The power of the system's "defense rolls".
+# ---------------------------------------------------------------------
+# The higher these numbers are, the more difficult it will be for
+# persons to generated certain types of actions (e.g., actual behaviors
+# or recording actions).
+
+# The maximum number (a randomly generated number between 0.0 and this number)
+# that a person may need to beat with their adjusted stats and levels, in order
+# to generate a Good or Poor behavior on a particular day.
+#
+# Adjusting these numbers is the simplest way of "coarsely" increasing
+# or decreasing the overall number of Good or Poor behaviors as a whole.
+defense_roll_max_behavior_good = 1.0 # ◀■=■=■=■=■
+defense_roll_max_behavior_poor = 0.9 # ◀■=■=■=■=■
+
+# The maximum number (a randomly generated number between 0.0 and this number)
+# that a person may need to beat with their adjusted stats and levels, in order
+# to generate a True Positive recording action on a particular day.
+defense_roll_max_recording_TP = 0.8 # ◀■=■=■=■=■
+
+
+# ---------------------------------------------------------------------
+# The strength of influence of certain events on other events.
+# ---------------------------------------------------------------------
+
+# Overall strength of the positive impact that a person's receiving a True Positive
+# record of a Good behavior that he had performed has over the following three days
+# on his actual Efficacy behaviors.
+strength_of_good_TP_record_impact_on_eff = 0.35 # ◀■=■=■=■=■
+
+# Overall strength of the negative impact that a person's receiving a False Negative
+# record of a Good behavior that he had performed has over the following three days
+# on his actual Efficacy behaviors.
+strength_of_good_FN_record_impact_on_eff = 0.38 # ◀■=■=■=■=■
+
+
+# ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+# █ Variables relating to visualizations
+# ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 
 # ---------------------------------------------------------------------
 # Variables relating to plotting of results.
@@ -201,57 +377,34 @@ plot_figure_dpi = 500
 plot_savefig_dpi = 500
 plot_figsize = (6.5, 3)
 plot_xy_label_fontsize = 7
-plot_xy_label_color = "#9ea3ff" #lavendar
+plot_xy_label_color = "#9ea3ff" #lavender
 plot_xy_label_pad = 4
 plot_hist_data_color = "#ff00ff" #magenta
 plot_scatter_data_color = "#ff00ff" #magenta
 plot_line_data_color = "#00FA95" #bright green
 plot_line_data_width = 1.85
 plot_bar_data_color = "#ffa74d" #orange-yellow
-plot_background_facecolor = '#404040'
+plot_background_facecolor = '#404040' # dark gray
 figure_background_facecolor = '#34343C' #darkest plum
+plot_bar_transition_grad_color = "#2A2A2A" # darker gray
+plot_bar_bottom_grad_color = "#191919" # almost black
 plot_xy_ticks_fontsize = 7
 plot_xy_ticks_color = "#fc8293" #salmon
 plot_title_fontsize = 8
 plot_title_color = "#5cffe5" #cyan
-
-
-# ---------------------------------------------------------------------
-# In-memory PNG charts, graphs, and other images created
-# through the plotting of results.
-# ---------------------------------------------------------------------
-png_plt_distribution_of_WRKR_CAP_scores_hist = None
-png_plt_distribution_of_MNGR_CAP_scores_hist = None
-png_plt_MNGR_CAP_vs_WRKR_CAP_scores_scatter = None
-png_plt_MNGR_CAP_by_age_scatter = None
-png_plt_WRKR_CAP_by_shift_bar = None
-png_plt_MNGR_CAP_by_role_bar = None
-png_plt_WRKR_CAP_by_team_bar = None
-png_plt_WRKR_CAP_vs_mean_Eff_scatter = None
-png_plt_num_Good_vs_Poor_actions_by_person_hist2d = None
-png_plt_Eff_by_weekday_bar = None
-png_plt_Eff_by_age_bar = None
-png_plt_Eff_by_same_gender_colleagues_prtn_scatter = None
-png_plt_Eff_by_same_gender_colleagues_prtn_bar = None
-png_plt_Eff_by_same_gender_colleagues_prtn_line = None
-png_plt_sub_sup_age_diff_vs_recorded_eff_line = None
-
 
 ops_results_section_fig_bg_color = "#34343C" #darkest plum
 ops_results_section_fig_axis_bg_color = "black" #black
 
 
 # ---------------------------------------------------------------------
-# Variables relating to I/O and files.
+# Variables storing in-memory PNG charts, graphs, and other images 
+# created through the plotting of results.
 # ---------------------------------------------------------------------
-current_working_dir = "" # This value will be calculated.
-input_files_dir = "" # This value will be calculated.
-output_files_dir = "" # This value will be calculated.
-export_path_and_filename = "" # This value will be calculated.
 
 
 # ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
-# █ The user's version of organizational terms to be used.
+# █ The user's version of organizational terms to be used
 # ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 
 # ---------------------------------------------------------------------
@@ -348,8 +501,12 @@ teams_per_sphere_per_shift = [
 
 # ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 # █ Male and female first and last names available for use
-# █ when randomly generating persons.
+# █ when randomly generating persons
 # ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+
+# ---------------------------------------------------------------------
+# First names.
+# ---------------------------------------------------------------------
 
 first_names_M = [
     "Brian",
@@ -406,6 +563,10 @@ first_names_F = [
     "Tamara",
     "Tonya",
     ]
+
+# ---------------------------------------------------------------------
+# Last names.
+# ---------------------------------------------------------------------
 
 last_names_M = [
     "Anderson",

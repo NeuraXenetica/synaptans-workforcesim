@@ -43,6 +43,7 @@ of their (more or less) permanent personal characteristics.
 
 import random
 from collections import defaultdict
+from turtle import fd
 
 
 # ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
@@ -59,6 +60,7 @@ import pandas as pd
 
 import config as cfg
 import wfs_utilities as utils
+import wfs_behaviors as bhv
 
 
 # ██████████████████████████████████████████████████████████████████████
@@ -72,6 +74,26 @@ import wfs_utilities as utils
 # ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 # █ Define the "Person" class and related functions
 # ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+
+def calculate_id_starting_value():
+    """
+    Calculates the value of the personal ID number to be assigned to the
+    first Person object created. The ID number will have a value
+    incremented by 1 for each subsequent person. The ID number's first
+    digits correspond to the random seed used for the simulation, which
+    allows multiple simulations employing different random seeds to be
+    combined, for purposes of smoothing out any irregularities resulting
+    from the imperfectly random nature of the seed and random-number
+    generator -- *without* having to deal with the problems that arise
+    if multiple persons have the same ID number.    
+    """
+
+    # Take cfg.cfg.random_seed_A, add 6 zeros to it, and then
+    # increment it by one. (E.g., with a random seed of 3, the first
+    # personal ID will be 3000001).
+
+    cfg.emp_id_starting_value = int(cfg.random_seed_A * 1000000 + 1)
+
 
 class Person_class:
     """
@@ -113,8 +135,74 @@ class Person_class:
         # Each person begins with a random age within the min-max range.
         self.age = cfg.min_person_age + random.randint(0, cfg.max_person_age - cfg.min_person_age)
 
+        # Workstyle. Each worker is assigned to one of several discrete
+        # "Workstyle" groups that determine whether the person has
+        # (1) elevated, average, or reduced daily Efficacy; (2) stable or
+        # variable daily Efficacy; (3) an elevated, average, or reduced
+        # number of Sacrifice behaviors, and (4) an elevated, average, or
+        # reduced number of Sabotage behaviors (in comparison to someone
+        # who otherwise has the same base stats).
+        #
+        # First, get the actual Workstyle group assignment probabilities
+        # for a person of the given age and sex.
+        if self.sex == "M":
+            if self.age < 38:
+                workstyle_prob_A = cfg.workstyle_prob_younger_male_A
+                workstyle_prob_B = cfg.workstyle_prob_younger_male_B
+                workstyle_prob_C = cfg.workstyle_prob_younger_male_C
+                workstyle_prob_D = cfg.workstyle_prob_younger_male_D
+                workstyle_prob_E = cfg.workstyle_prob_younger_male_E
+            else:
+                workstyle_prob_A = cfg.workstyle_prob_older_male_A
+                workstyle_prob_B = cfg.workstyle_prob_older_male_B
+                workstyle_prob_C = cfg.workstyle_prob_older_male_C
+                workstyle_prob_D = cfg.workstyle_prob_older_male_D
+                workstyle_prob_E = cfg.workstyle_prob_older_male_E
+        elif self.sex == "F":
+            if self.age < 38:
+                workstyle_prob_A = cfg.workstyle_prob_younger_female_A
+                workstyle_prob_B = cfg.workstyle_prob_younger_female_B
+                workstyle_prob_C = cfg.workstyle_prob_younger_female_C
+                workstyle_prob_D = cfg.workstyle_prob_younger_female_D
+                workstyle_prob_E = cfg.workstyle_prob_younger_female_E
+            else:
+                workstyle_prob_A = cfg.workstyle_prob_older_female_A
+                workstyle_prob_B = cfg.workstyle_prob_older_female_B
+                workstyle_prob_C = cfg.workstyle_prob_older_female_C
+                workstyle_prob_D = cfg.workstyle_prob_older_female_D
+                workstyle_prob_E = cfg.workstyle_prob_older_female_E
+
+        # Now assign the person to a particular Workstyle group.
+        rand_num = random.uniform(0.0, 1.0)
+
+        if rand_num <= (
+                workstyle_prob_A):
+            self.workstyle = "Group A"
+
+        elif rand_num <= (
+                workstyle_prob_A \
+                + workstyle_prob_B):
+            self.workstyle = "Group B"
+
+        elif rand_num <= (
+                workstyle_prob_A \
+                + workstyle_prob_B \
+                + workstyle_prob_C):
+            self.workstyle = "Group C"
+
+        elif rand_num <= (
+                workstyle_prob_A \
+                + workstyle_prob_B \
+                + workstyle_prob_C \
+                + workstyle_prob_D):
+            self.workstyle = "Group D"
+
+        else:
+            self.workstyle = "Group E"
+
+
         # ---------------------------------------------------------------------
-        # Stats for relatively stable personal traits.
+        # Stats for relatively stable personal traits (core stats).
         # ---------------------------------------------------------------------
 
         # Health.
@@ -135,6 +223,12 @@ class Person_class:
         # Goodness.
         self.stat_goodness = generate_personal_stat(cfg.other_stats_stat_mean, cfg.other_stats_stat_sdev)
 
+        # Strength. This is a "control stat" that has no effect on anything.
+        self.stat_strength = generate_personal_stat(cfg.other_stats_stat_mean, cfg.other_stats_stat_sdev)
+
+        # Openmindedness. This is a "control stat" that has no effect on anything.
+        self.stat_openmindedness = generate_personal_stat(cfg.other_stats_stat_mean, cfg.other_stats_stat_sdev)
+
 
         # ---------------------------------------------------------------------
         # Base probabilities for generating particular types of actual
@@ -142,58 +236,55 @@ class Person_class:
         # ---------------------------------------------------------------------
  
         # Base probability of generating a Presence behavior (before multipliers).
-        self.prob_base_presence = (
-            cfg.base_rate_attendance \
-            + self.stat_health * 0.1 * 1/2 \
-            + self.stat_commitment * 0.1 * 1/2
-            )
+        self.prob_base_presence = \
+            cfg.base_rate_attendance + \
+                (self.stat_health + self.stat_commitment)/2.0 * cfg.stat_to_prob_mod_conv_factor
 
         # Base probability of generating an Idea behavior (before multipliers).
-        self.prob_base_idea = (
-            cfg.base_rate_idea + self.stat_perceptiveness * 0.05
-            )
+        self.prob_base_idea = \
+            cfg.base_rate_idea + self.stat_perceptiveness * cfg.stat_to_prob_mod_conv_factor
 
         # Base probability of generating a Lapse behavior (before multipliers).
-        self.prob_base_lapse = (
-            cfg.base_rate_lapse - self.stat_perceptiveness * 0.05
-            )
+        self.prob_base_lapse = \
+            cfg.base_rate_lapse - self.stat_perceptiveness * cfg.stat_to_prob_mod_conv_factor
 
         # Base probability of generating a Feat behavior (before multipliers).
-        self.prob_base_feat = (
-            cfg.base_rate_feat + self.stat_dexterity * 0.05
-            )
+        self.prob_base_feat = \
+            cfg.base_rate_feat + self.stat_dexterity * cfg.stat_to_prob_mod_conv_factor
 
         # Base probability of generating a Slip behavior (before multipliers).
-        self.prob_base_slip = (
-            cfg.base_rate_slip - self.stat_dexterity * 0.05
-            )
+        self.prob_base_slip = \
+            cfg.base_rate_slip - self.stat_dexterity * cfg.stat_to_prob_mod_conv_factor
 
         # Base probability of generating a Teamwork behavior (before multipliers).
-        self.prob_base_teamwork = (
-            cfg.base_rate_teamwork + self.stat_sociality * 0.05
-            )
+        self.prob_base_teamwork = \
+            cfg.base_rate_teamwork + self.stat_sociality * cfg.stat_to_prob_mod_conv_factor
 
         # Base probability of generating a Disruption behavior (before multipliers).
-        self.prob_base_disruption = (
-            cfg.base_rate_disruption - self.stat_sociality * 0.05
-            )
+        self.prob_base_disruption = \
+            cfg.base_rate_disruption - self.stat_sociality * cfg.stat_to_prob_mod_conv_factor
 
         # Base probability of generating a Sacrifice behavior (before multipliers).
-        self.prob_base_sacrifice = (
-            cfg.base_rate_sacrifice + self.stat_goodness * 0.05
-            )
+        self.prob_base_sacrifice = \
+            cfg.base_rate_sabotage + \
+                (self.stat_goodness + self.stat_commitment)/2.0  * cfg.stat_to_prob_mod_conv_factor
 
         # Base probability of generating a Sabotage behavior (before multipliers).
-        self.prob_base_sabotage = (
-            cfg.base_rate_sabotage - self.stat_goodness * 0.05
-            )
+        self.prob_base_sabotage = \
+            cfg.base_rate_sabotage - \
+                (self.stat_goodness + self.stat_commitment)/2.0  * cfg.stat_to_prob_mod_conv_factor
 
         # Base Efficacy level (before multipliers).
-        self.level_base_efficacy = (
-            cfg.base_rate_efficacy \
-            + self.stat_dexterity * 0.1 * 1/2 \
-            + self.stat_commitment * 0.1 * 1/2
-            )
+        self.level_base_efficacy = \
+            cfg.base_rate_efficacy + \
+                (self.stat_dexterity + self.stat_commitment)/2.0 * cfg.stat_to_prob_mod_conv_factor
+
+        # Base probability of generating an accurate Good or Poor record, as a 
+        # manager (i.e., of generating a True Positive or True Negative record)
+        # (before multipliers).
+        self.prob_base_recording_accurately = \
+            cfg.base_rate_recording_accuracy + \
+                (self.stat_perceptiveness + self.stat_commitment + self.stat_goodness)/3.0 * cfg.stat_to_prob_mod_conv_factor
 
 
         # ---------------------------------------------------------------------
@@ -211,6 +302,8 @@ class Person_class:
         self.prob_modified_sabotage = self.prob_base_sabotage
 
         self.level_modified_efficacy = self.level_base_efficacy
+
+        self.prob_modified_recording_accurately = self.prob_base_recording_accurately
 
 
         # ---------------------------------------------------------------------
@@ -234,7 +327,7 @@ class Person_class:
                 3,
                 ]
             )
-        
+
         # This is general worker capacity (calculated as an arithmetic mean).
         self.WRKR_CAP = np.average(
             a=[
@@ -288,7 +381,7 @@ class Person_class:
         # Each person begins with no current activity.
         self.curr_actvty = "none"
 
-        # Proportion of the person's colleagues who are of the same gender.
+        # Proportion of the person's colleagues who are of the same sex.
         self.colleagues_of_same_sex_prtn = None
 
         # The age of a person's supervisor.
@@ -311,13 +404,16 @@ class Person_class:
         self.days_attended = ""
 
         # The lowest daily Efficacy generated by the person during the simulated period.
-        self.eff_sco_act_min = ""
+        self.eff_bhv_act_min = ""
 
         # The highest daily Efficacy generated by the person during the simulated period.
-        self.eff_sco_act_max = ""
+        self.eff_bhv_act_max = ""
 
         # The mean daily Efficacy generated by the person during the simulated period.
-        self.eff_sco_act_mean = ""
+        self.eff_bhv_act_mean = ""
+
+        # The SD of daily Efficacy generated by the person during the simulated period.
+        self.eff_bhv_act_sd = ""
 
         # The number of Good behaviors generated by the person during the simulated period.
         self.good_act_num = ""
@@ -357,15 +453,17 @@ class Person_class:
             cfg.role_header_term: self.role.title,
             cfg.MNGR_CAP_header_term: self.MNGR_CAP,
             cfg.WRKR_CAP_header_term: self.WRKR_CAP,
+            "Workstyle": self.workstyle,
             cfg.supervisor_header_term: self.sup,
             "Supervisor Age": self.sup_age,
             cfg.colleagues_header_term: self.colleagues,
             "Same-Sex Colleagues Prtn": self.colleagues_of_same_sex_prtn,
             cfg.subordinates_header_term: self.subs,
             "Days Attended": self.days_attended,
-            "Min Eff": self.eff_sco_act_min,
-            "Max Eff": self.eff_sco_act_max,
-            "Mean Eff": self.eff_sco_act_mean,
+            "Min Eff": self.eff_bhv_act_min,
+            "Max Eff": self.eff_bhv_act_max,
+            "Mean Eff": self.eff_bhv_act_mean,
+            "SD of Eff": self.eff_bhv_act_sd,
             "Num Goods": self.good_act_num,
             "Num Poors": self.poor_act_num,
             "Health": self.stat_health,
@@ -385,20 +483,20 @@ def generate_personal_stat(
     specified below; these can be overridden by manually adding
     arguments when the function is called.
     """
-    
+
     # Here "loc" is the mean, "scale" is SD,
     # and "size" is the number of numbers to generate.
     randomized_base_for_stat = round( float( np.random.normal(loc=mean_u, scale=sd_u, size=1) ) , 3)
-    
+
     # It's possible for the number generated above to be < -1 or > 1;
     # below we manually set -1 and +1 as the min and max.   
     adjusted_stat = randomized_base_for_stat
-    
+
     if randomized_base_for_stat < -1:
         adjusted_stat = -1.0
     elif randomized_base_for_stat > 1:
         adjusted_stat = 1.0
-    
+
     return adjusted_stat
 
 
@@ -461,7 +559,7 @@ class Role_class:
         """
         return self.title
 
-    
+
 def create_all_possible_roles():
     """
     Creates initial set of potential roles.
@@ -483,7 +581,7 @@ def assign_initial_role_to_each_person():
     """
     Assigns a role to each member of the community.
     """
-    
+
     # ---------------------------------------------------------------------
     # Assign the "Production Director" role to the 1 person
     # with the highest managerial capacity score.
@@ -616,7 +714,6 @@ def assign_initial_shift_to_each_person():
         for i in cfg.persons:
             if num_of_leaders_to_assign_per_shift[s] > 0:
                 if cfg.persons[i].shift == "":
-                    
                     cfg.persons[i].shift = cfg.shifts[s]
                     num_of_leaders_to_assign_per_shift[s] -= 1
 
@@ -626,7 +723,7 @@ def assign_initial_shift_to_each_person():
     # assigned, assign them to Shifts 1-3. It's important to use the
     # unordered "cfg.persons" dictionary rather than the DF sorted by capacity.
     # ---------------------------------------------------------------------
-    
+
     # Calculate the number of Laborers proper (not persons more generally)
     # who should be a part of each shift.
     # Subtract 4 from the size of the community, since the Production Director
@@ -702,7 +799,7 @@ def create_team_objects():
     for i in range(1, cfg.num_of_teams_per_shift * 3 + 1):
         cfg.teams[i] = Team_class()
         cfg.teams[i].title = "Team " + str(i)
-        
+
     # Indicate the shift that each team belongs to.
     for i in range(0, cfg.num_of_teams_per_shift + 1):
         cfg.teams[i].shift = cfg.shift_1_term
@@ -716,7 +813,7 @@ def assign_initial_team_to_each_person():
     """
     Assigns a team to each member of the community.
     """
-    
+
     # ---------------------------------------------------------------------
     # Assign the team "unassigned" to the "Production Director" and 
     # "Shift Managers".
@@ -745,7 +842,7 @@ def assign_initial_team_to_each_person():
     num_of_laborers_needed = [0]
     for i in range(cfg.num_of_teams_per_shift * 3):
         num_of_laborers_needed.append(cfg.num_of_laborers_per_team)
-    
+
     # >>>>> This list tracks how many Team Leaders still need to be assigned
     # >>>>> to each team. Each team begins by needing 1 Team Leader.
 
@@ -791,7 +888,7 @@ def assign_initial_team_to_each_person():
 
                             # NOTE! The code below isn't working yet.
                             cfg.persons[p].sphere = str(t)
-                            
+
                             cfg.num_of_leaders_needed[t] -= 1
 
                 # Iterate through all persons to deal with all Laborers...
@@ -806,13 +903,13 @@ def assign_initial_team_to_each_person():
                         and (cfg.persons[p].team == ""):
 
                             cfg.persons[p].team = cfg.teams[t]
-                            
+
                             # NOTE! The code below isn't working yet.
                             cfg.persons[p].sphere = str(t)
-                            
+
                             num_of_laborers_needed[t] -= 1
 
-                            
+
 # ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 # █ Define the "Sphere" class and related functions
 # ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
@@ -886,7 +983,7 @@ def assign_initial_sphere_to_each_person():
 
     # The first team is ascribed to sphere 0, the "unassigned" sphere.
     cfg.sphere_of_given_team = [0]
-    
+
     # For each of the teams (after team 0), we calculate which sphere it has by
     # iterating through the list of spheres and adding each to the sphere_of_given_team
     # list for however many teams are supposed to have that sphere in each shift
@@ -900,7 +997,7 @@ def assign_initial_sphere_to_each_person():
     # Here I can begin with t=1, as t=0 is a special case ("general management")
     # that has already been handled above.
     for t in range (1, len(cfg.teams) ):
-        
+
         # Handle each shift in turn, beginning with cfg.shifts[1] (not cfg.shifts[0],
         # which is the "unassigned" shift).
         for s in range (1, len(cfg.shifts) ):
@@ -1099,7 +1196,7 @@ def assign_initial_colleagues_to_all_persons():
 def update_persons_colleagues_of_same_sex_prtn():
     """
     For all persons, updates the calculation of the proportion of a
-    a person's colleagues who are of the same gender.
+    a person's colleagues who are of the same sex.
     """
 
     for p in cfg.persons:
@@ -1145,7 +1242,7 @@ def calculate_person_modifiers_to_implement_dependencies_and_covariance():
         # Implement a bonus that increases a worker's Efficacy based on Age.
         cfg.persons[p].level_modified_efficacy = \
             cfg.persons[p].level_modified_efficacy * \
-            (1 + cfg.persons[p].age * cfg.strength_of_effect * random.uniform(0.0, 0.083))
+            (1 + cfg.persons[p].age * cfg.strength_of_effect * random.uniform(0.0, cfg.eff_bonus_max_from_person_age))
 
 
         # ---------------------------------------------------------------------
@@ -1158,28 +1255,28 @@ def calculate_person_modifiers_to_implement_dependencies_and_covariance():
 
         # Monday has weekday_num = 0; Friday has weekday_num = 4.
         weekday_num = cfg.current_datetime_obj.weekday()
-#        print("weekday_num: ", weekday_num)
+        #print("weekday_num: ", weekday_num)
 
         cfg.persons[p].level_modified_efficacy = \
             cfg.persons[p].level_modified_efficacy * \
-            (1 + weekday_num * cfg.strength_of_effect * random.uniform(0.0, 0.65))
+            (1 + weekday_num * cfg.strength_of_effect * random.uniform(0.0, cfg.eff_bonus_max_from_weekday))
 
         #weekday_name = cfg.current_datetime_obj.strftime("%A")
         #print("weekday_name: ", weekday_name)
 
-#        print(
-#            "person's level_modified_efficacy after weekday bonus: ",
-#            cfg.persons[p].level_modified_efficacy
-#            )
+        #print(
+        #    "person's level_modified_efficacy after weekday bonus: ",
+        #    cfg.persons[p].level_modified_efficacy
+        #    )
 
 
         # ---------------------------------------------------------------------
-        # Bonus to Efficacy based on gender of teammates.
+        # Bonus to Efficacy based on sex of teammates.
         # ---------------------------------------------------------------------
 
         # Implement a bonus that increases a person's Efficacy as one has a
         # higher proportion of colleagues (e.g., immediate teammates) who are
-        # of the same gender as oneself.
+        # of the same sex as oneself.
 
         # This is only relevant if the person has colleagues (i.e.,
         # isn't the factory's Production Director).
@@ -1187,11 +1284,11 @@ def calculate_person_modifiers_to_implement_dependencies_and_covariance():
 
             cfg.persons[p].level_modified_efficacy = \
                 cfg.persons[p].level_modified_efficacy * \
-                (1 + cfg.persons[p].colleagues_of_same_sex_prtn * cfg.strength_of_effect * random.uniform(0.0, 1.8))
+                (1 + cfg.persons[p].colleagues_of_same_sex_prtn * cfg.strength_of_effect * random.uniform(0.0, cfg.eff_bonus_max_from_teammate_sexes))
 
 
         # ---------------------------------------------------------------------
-        # Penalty to Efficacy based on age of supervisor.
+        # Penalty to Efficacy based on difference in age with supervisor.
         # ---------------------------------------------------------------------
 
         # Implement a penalty that decreases a person's Efficacy as the
@@ -1204,8 +1301,141 @@ def calculate_person_modifiers_to_implement_dependencies_and_covariance():
             cfg.persons[p].level_modified_efficacy = \
                 cfg.persons[p].level_modified_efficacy * \
                 (1 - abs(cfg.persons[p].age - cfg.persons[p].sup.age) \
-                * cfg.strength_of_effect * random.uniform(0.0, 0.04))
+                * cfg.strength_of_effect * random.uniform(0.0, cfg.eff_penalty_max_from_sup_age_diff))
 
+
+        # ---------------------------------------------------------------------
+        # (1) Bonus/Penalty to Efficacy lavel and (2) stable or variable
+        # daily Efficacy, based on a person's Workstyle group.
+        # ---------------------------------------------------------------------
+
+        # Implement a bonus (or penalty) that modifies a person's Efficacy, if
+        # he is in a Workstyle group whose members display elevated or reduced
+        # (and not simply moderate) Efficacy.
+        # Add a degree of daily variability to a person's Efficacy that reflects
+        # the type of daily Efficacy (stable or variable) possessed by
+        # the Workstyle group to which the person belongs.
+
+        # Group A has elevated Efficacy.
+        if cfg.persons[p].workstyle == "Group A":
+            cfg.persons[p].level_modified_efficacy = \
+                cfg.persons[p].level_modified_efficacy * \
+                (1 + cfg.workstyle_eff_level_modifier \
+                * cfg.strength_of_effect * random.uniform(0.0, 1.0))
+
+            # Group A has stable Efficacy (i.e., no added variability).
+            cfg.persons[p].workstyle_eff_daily_variability = 0.0
+
+
+        # Group B has elevated Efficacy.
+        if cfg.persons[p].workstyle == "Group B":
+            cfg.persons[p].level_modified_efficacy = \
+                cfg.persons[p].level_modified_efficacy * \
+                (1 + cfg.workstyle_eff_level_modifier \
+                * cfg.strength_of_effect * random.uniform(0.0, 1.0))
+
+            # Group B has variable Efficacy (i.e., add up to the max variability).
+            cfg.persons[p].workstyle_eff_daily_variability = \
+                cfg.workstyle_eff_max_daily_variability \
+                * cfg.strength_of_effect * random.uniform(0.0, 1.0)
+
+
+        # Group C has average Efficacy (no modifier is applied).
+        if cfg.persons[p].workstyle == "Group C":
+
+            # Group C has stable Efficacy (i.e., no added variability).
+            cfg.persons[p].workstyle_eff_daily_variability = 0.0
+
+
+        # Group D has reduced Efficacy.
+        if cfg.persons[p].workstyle == "Group D":
+            cfg.persons[p].level_modified_efficacy = \
+                cfg.persons[p].level_modified_efficacy * \
+                (1 - cfg.workstyle_eff_level_modifier \
+                * cfg.strength_of_effect * random.uniform(0.0, 1.0))
+
+            # Group D has stable Efficacy (i.e., no added variability).
+            cfg.persons[p].workstyle_eff_daily_variability = 0.0
+
+
+        # Group E has reduced Efficacy.
+        if cfg.persons[p].workstyle == "Group E":
+            cfg.persons[p].level_modified_efficacy = \
+                cfg.persons[p].level_modified_efficacy * \
+                (1 - cfg.workstyle_eff_level_modifier \
+                * cfg.strength_of_effect * random.uniform(0.0, 1.0))
+
+            # Group E has variable Efficacy (i.e., add the max variability).
+            cfg.persons[p].workstyle_eff_daily_variability = \
+                cfg.workstyle_eff_max_daily_variability \
+                * cfg.strength_of_effect * random.uniform(0.0, 1.0)
+
+
+        # ---------------------------------------------------------------------
+        # Bonus to Efficacy lavel based on a person having had a Good behavior
+        # (Idea, Feat, Teamwork, or Sacrifice) in the previous days that was
+        # accurately recorded by his manager (i.e., a True Positive record of
+        # a Good behavior).
+        # ---------------------------------------------------------------------
+
+        mod_for_TP_FN_good = bhv.return_eff_modifier_for_impact_of_previous_recordings_on_bhv_of_person_today(
+            cfg.persons[p], # the Person object whose behavior may be impacted
+            )
+        #print("Daily mod_for_TP_FN_good for person: ", mod_for_TP_FN_good)
+
+        cfg.persons[p].level_modified_efficacy = \
+            cfg.persons[p].level_modified_efficacy * mod_for_TP_FN_good \
+
+        #print("person's final cfg.persons[p].level_modified_efficacy: ", cfg.persons[p].level_modified_efficacy)
+
+
+def person_object_with_given_sub_ID(
+    sub_ID_u, # the subject ID for the person object being sought
+    ):
+    """
+    Returns the person object that possesses the inputted ID number.
+    """
+
+    for p in cfg.persons:
+        if cfg.persons[p].per_id == sub_ID_u:
+            return cfg.persons[p]
+
+    return None
+
+
+def display_simple_personnel_statistics():
+    """
+    Calculates and displays some simple statistics regarding
+    persons' demographics and stats.
+    """
+
+    # Calculate the portion of persons in Workstyle Group A.
+    workstyle_A_num = list(cfg.persons_df["Workstyle"]).count("Group A")
+    workstyle_A_prtn = workstyle_A_num / len(cfg.persons_df)
+
+    # Calculate the portion of persons in Workstyle Group B.
+    workstyle_B_num = list(cfg.persons_df["Workstyle"]).count("Group B")
+    workstyle_B_prtn = workstyle_B_num / len(cfg.persons_df)
+
+    # Calculate the portion of persons in Workstyle Group C.
+    workstyle_C_num = list(cfg.persons_df["Workstyle"]).count("Group C")
+    workstyle_C_prtn = workstyle_C_num / len(cfg.persons_df)
+
+    # Calculate the portion of persons in Workstyle Group D.
+    workstyle_D_num = list(cfg.persons_df["Workstyle"]).count("Group D")
+    workstyle_D_prtn = workstyle_D_num / len(cfg.persons_df)
+
+    # Calculate the portion of persons in Workstyle Group E.
+    workstyle_E_num = list(cfg.persons_df["Workstyle"]).count("Group E")
+    workstyle_E_prtn = workstyle_E_num / len(cfg.persons_df)
+
+    print("Portion of persons with each workstyle: ",
+        "A:", round(workstyle_A_prtn, 3),
+        "B:", round(workstyle_B_prtn, 3),
+        "C:", round(workstyle_C_prtn, 3),
+        "D:", round(workstyle_D_prtn, 3),
+        "E:", round(workstyle_E_prtn, 3),
+        )
 
 
 # ••••-••••-••••-••••-••••-••••-••••--••••-••••-••••-••••-••••-••••-••••
