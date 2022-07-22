@@ -54,7 +54,17 @@ from datetime import timedelta
 # █ Import other modules from the WorkforceSim package
 # ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 
-import config as cfg
+# Imports of the form "from . import X as x" have been added for use
+# in the distributed package; imports of the form "import X as x" are
+# retained for use when debugging the modules in VS Code.
+
+if __name__ == "__main__":
+    import config as cfg
+else:
+    try:
+        from . import config as cfg
+    except:
+        import config as cfg
 
 
 # ██████████████████████████████████████████████████████████████████████
@@ -132,16 +142,13 @@ def return_df_with_col_one_hot_encoded(
 
     # Populate the values of the newly created one-hot-encoding columns.
     for i in range(len(new_df)):
-        #try:
+
         # Find the new OHE column that corresponds to the 
         # value that was in the column to be one-hot encoded.
         col_name = str(new_df[col_to_one_hot_encode_u].values[i]) + " (" + str(col_to_one_hot_encode_u) + ")"
 
         # Write 1 into the relevant OHE column.
         new_df[col_name].values[i] = 1
-
-        #except:
-        #   pass
 
     return new_df
 
@@ -159,16 +166,17 @@ def return_week_in_series_for_given_date(
     input_date_u, # the date whose week should be returned
     ):
     """
-    Returns the week (int) where a given inputted date falls,
-    within the series of all weeks in the dataset.
+    Returns the week (1-indexed int) where a given inputted date falls,
+    within the series of retained in the dataset.
     """
 
     # Calculate the difference in days from the inputted date 
-    # to the starting date of the dataset, divide by 7, and drop the remainder.
-    starting_date = datetime.datetime.strptime(cfg.sim_starting_date, '%Y-%m-%d').date()
+    # to the starting date of the dataset, divide by 7, drop the remainder,
+    # and add 1.
+    starting_date = datetime.datetime.strptime(cfg.sim_starting_date_for_analysis, '%Y-%m-%d').date()
     days_difference_m = input_date_u - starting_date
     days_difference_m = float(days_difference_m.days)
-    week_in_series = int( days_difference_m / 7 )
+    week_in_series = int( days_difference_m / 7 ) + 1
     return week_in_series
 
 
@@ -181,14 +189,40 @@ def return_date_of_final_day_to_simulate(
     current_date = starting_date
 
     for i in range(0, days_num - 1):
-
-        if current_date.weekday() == 4:
-            current_date += timedelta(days = 3)
-        else:
-            current_date += timedelta(days = 1)
+        current_date += timedelta(days = 1)
 
     final_date = current_date
     return final_date
+
+
+def update_current_day_in_month_1_indexed_num():
+    """
+    Updates cfg.day_of_month_1_indexed to an integer of the current 
+    simulated day in the month (e.g., if the current day being 
+    simulated is May 29, it would assign it the value int 29).
+    """
+    cfg.day_of_month_1_indexed = int(cfg.current_datetime_obj.day)
+
+
+def begin_tracking_elapsed_processing_time():
+    """
+    Stores the real-world datetime at which processing of the 
+    simulation began.
+    """
+
+    # Store the date and time at which the simulation began.
+    cfg.sim_processing_start_datetime = datetime.datetime.now()
+
+
+def return_elapsed_processing_time():
+    """
+    Returns the total elapsed time for which processing of some part
+    of the simulation has been running.
+    """
+
+    elapsed_datetime_timedelta = datetime.datetime.now() - cfg.sim_processing_start_datetime
+    elapsed_datetime_timedelta_displayable_str = str(elapsed_datetime_timedelta)
+    return elapsed_datetime_timedelta_displayable_str
 
 
 

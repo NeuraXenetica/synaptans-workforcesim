@@ -15,7 +15,7 @@
 """
 This module handles the reading of files from disk (e.g., XLSX files or
 PNG images); the writing of files to disk (e.g., saving DataFrames as
-XLSX files or Matplotlib plots as PNG images; and the saving of complex
+XLSX files or Matplotlib plots as PNG images); and the saving of complex
 objects as file-like objects assigned to variables in memory (e.g.,
 Matplotlib plots as in-memory PNGs for display in a GUI).
 """
@@ -44,6 +44,8 @@ Matplotlib plots as in-memory PNGs for display in a GUI).
 # ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 
 import os
+from os.path import dirname, abspath
+
 import datetime
 import pickle
 
@@ -57,7 +59,17 @@ import pickle
 # █ Import other modules from the WorkforceSim package
 # ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 
-import config as cfg
+# Imports of the form "from . import X as x" have been added for use
+# in the distributed package; imports of the form "import X as x" are
+# retained for use when debugging the modules in VS Code.
+
+if __name__ == "__main__":
+    import config as cfg
+else:
+    try:
+        from . import config as cfg
+    except:
+        import config as cfg
 
 
 # ██████████████████████████████████████████████████████████████████████
@@ -76,16 +88,23 @@ def specify_directory_structure():
     # Check whether the module is (likely) being run in Google Colab.
     cwd = os.getcwd()
     if cwd == "/content": # True if the module is being run in Colab.
-        os.chdir(cwd + r"/drive/MyDrive/MEG_PY_Colab_workground/workforcesim-package")
+        os.chdir(cwd + r"/drive/MyDrive/PY_Colab_workground/workforcesim-package")
 
     cfg.current_working_dir = os.getcwd()
 
-    cfg.input_files_dir = os.path.abspath(
-        os.path.join(cfg.current_working_dir, 'input_files'))
-    #print("cfg.input_files_dir:", cfg.input_files_dir)
+    # Get the path of this module, wherever it's being run from.
+    cfg.input_files_dir = \
+        os.path.join( dirname(os.path.abspath(__file__)), 'input_files')
+    print("cfg.input_files_dir:", cfg.input_files_dir)
 
     cfg.output_files_dir = os.path.abspath(
         os.path.join(cfg.current_working_dir, 'output_files'))
+
+    # This will create an output files directory in the current
+    # working directory, if it doesn't already exist.
+    if not os.path.exists(cfg.output_files_dir):
+        os.makedirs(cfg.output_files_dir)
+
     print("cfg.output_files_dir: ", cfg.output_files_dir)
 
 
@@ -102,8 +121,14 @@ def generate_unique_file_prefix_code_for_simulation_run():
 
     cfg.unique_file_prefix_code_for_simulation_run = \
         "[" + str(persons_num) + "p-" + \
-            str(cfg.num_of_days_to_simulate) + "d-" \
+            str(cfg.num_of_days_to_simulate_for_analysis) + "d-" \
                 + str(cfg.random_seed_A) + "r_" + datetime_str +"]_"
+
+    # This variant can be used as a suffix instead of a prefix.
+    cfg.unique_file_suffix_code_for_simulation_run = \
+        "_[" + str(persons_num) + "p-" + \
+            str(cfg.num_of_days_to_simulate_for_analysis) + "d-" \
+                + str(cfg.random_seed_A) + "r_" + datetime_str +"]"
 
 
 def save_df_to_xlsx_file(
@@ -119,6 +144,22 @@ def save_df_to_xlsx_file(
     input_df_u.to_excel(filename_and_path)
 
 
+def save_df_to_csv_file(
+    input_df_u, # the input DF
+    filename_u, # the desired filename (without prefix code or .csv ending)
+    ):
+    """
+    Saves a DataFrame to disk as a CSV file.
+    """
+
+    full_filename = filename_u + cfg.unique_file_suffix_code_for_simulation_run + ".csv"
+    filename_and_path = os.path.join(cfg.output_files_dir, full_filename)
+    input_df_u.to_csv(
+        filename_and_path,
+        encoding="utf-8",
+        index=False)
+
+
 def save_key_vars_to_pickled_file():
     """
     Exports key variables to a file via pickling.
@@ -131,7 +172,7 @@ def save_key_vars_to_pickled_file():
         pickle.dump(
             [
                 cfg.size_of_comm_initial,
-                cfg.num_of_days_to_simulate,
+                cfg.num_of_days_to_simulate_for_analysis,
                 cfg.other_stats_stat_mean,
                 cfg.other_stats_stat_sdev,
                 cfg.random_seed_A,
@@ -163,6 +204,7 @@ def save_key_vars_to_pickled_file():
                 cfg.defense_roll_max_behavior_poor,
                 cfg.defense_roll_max_recording_TP,
                 cfg.behavs_act_df,
+                cfg.persons,
                 cfg.persons_df,
                 cfg.unique_file_prefix_code_for_simulation_run,
                 ],
@@ -180,7 +222,7 @@ def load_key_vars_from_pickled_file(
 
     with open(filename_and_path, 'rb') as file_to_read:
         cfg.size_of_comm_initial, \
-        cfg.num_of_days_to_simulate, \
+        cfg.num_of_days_to_simulate_for_analysis, \
         cfg.other_stats_stat_mean, \
         cfg.other_stats_stat_sdev, \
         cfg.random_seed_A, \
@@ -212,9 +254,113 @@ def load_key_vars_from_pickled_file(
         cfg.defense_roll_max_behavior_poor, \
         cfg.defense_roll_max_recording_TP, \
         cfg.behavs_act_df, \
+        cfg.persons, \
         cfg.persons_df, \
         cfg.unique_file_prefix_code_for_simulation_run, \
         = pickle.load(file_to_read)
+
+
+def save_wfs_behaviors_records_df_as_csv_for_distribution():
+    """
+    Exports wfs_behaviors-records_df in CSV format for distribution
+    within the package and/or uploading to sites (e.g., Kaggle).
+    """
+
+    wfs_behaviors_records_df_for_distribution = cfg.behavs_act_df.rename(
+        columns={
+            "Sub ID": "sub_ID",
+            "Sub First Name": "sub_fname",
+            "Sub Last Name": "sub_lname",
+            "Sub Age": "sub_age",
+            "Sub Sex": "sub_sex",
+            "Sub Shift": "sub_shift",
+            "Sub Team": "sub_team",
+            "Sub Role": "sub_role",
+            "Sub Colleague IDs": "sub_coll_IDs",
+            "Sub Same-Sex Colleagues Prtn": "sub_colls_same_sex_prtn",
+            "Sub Health": "sub_health_h",
+            "Sub Commitment": "sub_commitment_h",
+            "Sub Perceptiveness": "sub_perceptiveness_h",
+            "Sub Dexterity": "sub_dexterity_h",
+            "Sub Sociality": "sub_sociality_h",
+            "Sub Goodness": "sub_goodness_h",
+            "Sub Strength": "sub_strength_h",
+            "Sub Openmindedness": "sub_openmindedness_h",
+            "Sub Workstyle": "sub_workstyle_h",
+            "Sup ID": "sup_ID",
+            "Sup First Name": "sup_fname",
+            "Sup Last Name": "sup_lname",
+            "Sup Age": "sup_age",
+            "Sup-Sub Age Difference": "sup_sub_age_diff",
+            "Sup Sex": "sup_sex",
+            "Sup Role": "sup_role",
+            "Sup Commitment": "sup_commitment_h",
+            "Sup Perceptiveness": "sup_perceptiveness_h",
+            "Sup Goodness": "sup_goodness_h",
+            "Event Date": "event_date",
+            "Week in Series": "event_week_in_series",
+            "Day in Series (1-based)": "event_day_in_series",
+            "Weekday Num": "event_weekday_num",
+            "Weekday Name": "event_weekday_name",
+            "Behavior Comptype": "behav_comptype_h",
+            "Behavior Nature": "behav_cause_h",
+            "Actual Efficacy": "actual_efficacy_h",
+            "Record Comptype": "record_comptype",
+            "Record Nature": "record_cause",
+            "Recorded Efficacy": "recorded_efficacy",
+            "Note": "recorded_note_from_sup",
+            "Record Conf Mat": "record_conf_matrix_h",
+        })
+
+    wfs_behaviors_records_df_for_distribution = wfs_behaviors_records_df_for_distribution[[
+        "sub_ID",
+        "sub_fname",
+        "sub_lname",
+        "sub_age",
+        "sub_sex",
+        "sub_shift",
+        "sub_team",
+        "sub_role",
+        "sub_coll_IDs",
+        "sub_colls_same_sex_prtn",
+        "sub_health_h",
+        "sub_commitment_h",
+        "sub_perceptiveness_h",
+        "sub_dexterity_h",
+        "sub_sociality_h",
+        "sub_goodness_h",
+        "sub_strength_h",
+        "sub_openmindedness_h",
+        "sub_workstyle_h",
+        "sup_ID",
+        "sup_fname",
+        "sup_lname",
+        "sup_age",
+        "sup_sub_age_diff",
+        "sup_sex",
+        "sup_role",
+        "sup_commitment_h",
+        "sup_perceptiveness_h",
+        "sup_goodness_h",
+        "event_date",
+        "event_week_in_series",
+        "event_day_in_series",
+        "event_weekday_num",
+        "event_weekday_name",
+        "behav_comptype_h",
+        "behav_cause_h",
+        "actual_efficacy_h",
+        "record_comptype",
+        "record_cause",
+        "recorded_efficacy",
+        "recorded_note_from_sup",
+        "record_conf_matrix_h",
+        ]]
+
+    save_df_to_csv_file(
+        wfs_behaviors_records_df_for_distribution, # the input DF
+        "wfs_behaviors_and_records", # the desired filename (without prefix code or .csv ending)
+        )
 
 
 

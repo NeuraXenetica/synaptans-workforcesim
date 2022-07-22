@@ -16,8 +16,7 @@
 This module handles visualization of the simulation’s results. It is
 capable of generating a wide range of histograms, bar plots,
 scatterplots, and other plots illustrating temporal trends and the
-relationships between
-particular variables.
+relationships between particular variables.
 """
 
 # ██████████████████████████████████████████████████████████████████████
@@ -46,6 +45,7 @@ particular variables.
 import io
 import os
 import colorsys
+import warnings
 
 
 # ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
@@ -67,8 +67,22 @@ import pandas as pd
 # █ Import other modules from the WorkforceSim package
 # ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 
-import config as cfg
-import wfs_utilities as utils
+# Imports of the form "from . import X as x" have been added for use
+# in the distributed package; imports of the form "import X as x" are
+# retained for use when debugging the modules in VS Code.
+
+if __name__ == "__main__":
+    import config as cfg
+    import wfs_utilities as utils
+else:
+    try:
+        from . import config as cfg
+    except:
+        import config as cfg
+    try:
+        from . import wfs_utilities as utils
+    except:
+        import wfs_utilities as utils
 
 
 # ██████████████████████████████████████████████████████████████████████
@@ -145,7 +159,7 @@ def generate_simple_plot_return_PNG_and_save_to_file(
     data_alpha_main_u, # optional alpha value for the data
     color_mapping_for_legend_u, # the color mapping for use in legend
     plot_title_u, # title for the whole plot
-    wfs_logo_location_u, # location for WFS logo (e.g., "upper right")
+    wfs_logo_location_u, # location for WorkforceSim logo (e.g., "upper right")
     name_for_file_u # name for PNG file
     ):
 
@@ -201,7 +215,7 @@ def generate_simple_plot_return_PNG_and_save_to_file(
         ax.hist2d(
             data_x_u,
             data_y_u,
-            bins=10,
+            bins=30,
             )
 
     # A line graph (a generic "plot", in Matplotlib terms).
@@ -268,10 +282,11 @@ def generate_simple_plot_return_PNG_and_save_to_file(
         # color, but Seaborn interprets it as an HULS color.
         color_hls = colorsys.rgb_to_hls(color_rgb[0], color_rgb[1], color_rgb[2])
 
-        # By default, Seaborn heatmaps -1.0 and +1.0 colors from opposite
+        # By default, Seaborn heatmaps -1.0 and +1.0 colors using opposite
         # ends of the colormap; however, it's possible to set it to use 
         # the absolute value of numbers when selecting colors (so that
-        # correlations of -1.0 and +1.0 will have the same color).
+        # correlations of -1.0 and +1.0 will have the same color and 0.0 will
+        # be the color at the opposite end of the spectrum).
         cmap_absolute_valued = sns.diverging_palette(
             color_hls[0],
             color_hls[0],
@@ -296,7 +311,7 @@ def generate_simple_plot_return_PNG_and_save_to_file(
             yticklabels=1,
             )
 
-        # Not sure whether these are really necessary.
+        # It's unclear whether these are really necessary.
         ax.grid(b=None)
         ax.grid(False)
 
@@ -366,8 +381,6 @@ def generate_simple_plot_return_PNG_and_save_to_file(
         logo_ax.set_facecolor('none')
         logo_ax.add_artist(ab)
 
-
-    import warnings
     warnings.filterwarnings("ignore", message="This figure includes Axes that are not compatible with tight_layout, so results might be incorrect.")
     #
     # This is needed to prevent x- and y-tick labels from sometimes being cut off.
@@ -407,6 +420,7 @@ def plot_distribution_of_WRKR_CAP_scores_hist():
     """
     Save to file and return a PNG histogram plot of WRKR_CAP scores.
     """
+
     # Prepare the data.
     df_to_plot = cfg.persons_df.copy()
 
@@ -431,6 +445,7 @@ def plot_distribution_of_MNGR_CAP_scores_hist():
     """
     Save to file and return a PNG histogram plot of MNGR_CAP scores.
     """
+
     # Prepare the data.
     df_to_plot = cfg.persons_df.copy()
 
@@ -480,14 +495,15 @@ def plot_MNGR_CAP_by_age_scatter():
     """
     Save to file and return a PNG scatterplot of MNGR_CAP scores by age.
     """
+
     # Prepare the data.
     df_to_plot = cfg.persons_df.copy()
 
     generate_simple_plot_return_PNG_and_save_to_file(
         "scatter", # plot type ("column", "hist", "hist2d", "line", "scatter")
-        df_to_plot["Age"], # x-series of the data
+        df_to_plot["Sub Age"], # x-series of the data
         df_to_plot["MNGR_CAP"], # y-series of the data (optional)
-        'Age', # x-axis label
+        'Sub Age', # x-axis label
         'MNGR_CAP score', # y-axis label (optional)
         0, # rotation of x-tick labels
         None, # custom xy-tick label fontsize
@@ -504,6 +520,7 @@ def plot_WRKR_CAP_by_shift_bar():
     """
     Save to file and return a PNG bar plot of WRKR_CAP scores by shift.
     """
+
     # Prepare the data.
     df_to_plot = cfg.persons_df.copy()
 
@@ -511,13 +528,13 @@ def plot_WRKR_CAP_by_shift_bar():
     # This approach to flattening involves simpler code, but it 
     # calculates the mean for *all* columns (including those that
     # don't need to be plotted).
-    df_to_plot = df_to_plot.groupby("Shift", as_index=False).mean()
+    df_to_plot = df_to_plot.groupby("Sub Shift", as_index=False).mean()
 
     generate_simple_plot_return_PNG_and_save_to_file(
         "bar", # plot type ("column", "hist", "hist2d", "line", "scatter")
-        df_to_plot["Shift"], # x-series of the data
+        df_to_plot["Sub Shift"], # x-series of the data
         df_to_plot["WRKR_CAP"], # y-series of the data (optional)
-        'Shift', # x-axis label
+        'Sub Shift', # x-axis label
         'Average WRKR_CAP score', # y-axis label (optional)
         0, # rotation of x-tick labels
         None, # custom xy-tick label fontsize
@@ -532,17 +549,18 @@ def plot_WRKR_CAP_by_shift_bar():
 
 def plot_MNGR_CAP_by_role_bar():
     """
-    Save to file and return a PNG bar plot of MNGR_CAP scores by shift.
+    Save to file and return a PNG bar plot of MNGR_CAP scores by role.
     """
+
     # Prepare the data.
     df_to_plot = cfg.persons_df.copy()
 
     # Flatten the DF to only include a row for its mean values.
-    df_to_plot = df_to_plot.groupby("Role", as_index=False).agg({"MNGR_CAP": 'mean'})
+    df_to_plot = df_to_plot.groupby("Sub Role", as_index=False).agg({"MNGR_CAP": 'mean'})
 
     generate_simple_plot_return_PNG_and_save_to_file(
         "bar", # plot type ("column", "hist", "hist2d", "line", "scatter")
-        df_to_plot["Role"], # x-series of the data
+        df_to_plot["Sub Role"], # x-series of the data
         df_to_plot["MNGR_CAP"], # y-series of the data (optional)
         'Organizational role', # x-axis label
         'Average MNGR_CAP score', # y-axis label (optional)
@@ -561,15 +579,16 @@ def plot_WRKR_CAP_by_team_bar():
     """
     Save to file and return a PNG bar plot of WRKR_CAP scores by team.
     """
+
     # Prepare the data.
     df_to_plot = cfg.persons_df.copy()
 
     # Flatten the DF to only include a row for its mean values.
-    df_to_plot = df_to_plot.groupby("Team", as_index=False).agg({"WRKR_CAP": 'mean'})
+    df_to_plot = df_to_plot.groupby("Sub Team", as_index=False).agg({"WRKR_CAP": 'mean'})
 
     generate_simple_plot_return_PNG_and_save_to_file(
         "bar", # plot type ("column", "hist", "hist2d", "line", "scatter")
-        df_to_plot["Team"], # x-series of the data
+        df_to_plot["Sub Team"], # x-series of the data
         df_to_plot["WRKR_CAP"], # y-series of the data (optional)
         'Organizational role', # x-axis label
         'Average MNGR_CAP score', # y-axis label (optional)
@@ -589,6 +608,7 @@ def plot_WRKR_CAP_vs_mean_Eff_scatter():
     Save to file and return a PNG scatterplot of WRKR_CAP scores
     versus mean Efficacy.
     """
+
     # Prepare the data.
     df_to_plot = cfg.persons_df.copy()
 
@@ -612,8 +632,9 @@ def plot_WRKR_CAP_vs_mean_Eff_scatter():
 def plot_num_Good_vs_Poor_actions_by_person_hist2d():
     """
     Save to file and return a PNG 2D histogram plot of Good
-    versus poor actions by person.
+    versus Poor actions by person.
     """
+
     # Prepare the data.
     df_to_plot = cfg.persons_df.copy()
 
@@ -636,7 +657,7 @@ def plot_num_Good_vs_Poor_actions_by_person_hist2d():
 
 def plot_Eff_by_weekday_bar():
     """
-    Save to file and return a PNG bar plot of Efficacy scores by weekday.
+    Save to file and return a PNG bar plot of Actual Efficacy scores by weekday.
     """
 
     # Prepare the data.
@@ -660,20 +681,207 @@ def plot_Eff_by_weekday_bar():
         )
 
 
-def plot_Eff_by_age_bar():
+def plot_Eff_by_day_of_month_bar():
     """
-    Save to file and return a PNG bar plot of Efficacy scores by weekday.
+    Save to file and return a PNG bar plot of Actual Efficacy scores
+    by day of the month.
     """
 
     # Prepare the data.
     df_to_plot = cfg.behavs_act_df.copy()
-    df_to_plot = df_to_plot.groupby("Age", as_index=False).agg({"Actual Efficacy": 'mean'})
+
+    # Add a column with the day of the month.
+    df_to_plot["Day in Month"] = None
+    for i in range(len(df_to_plot)):
+        behav_datetime = df_to_plot["Event Datetime"].values[i]
+        behav_day_in_month = pd.to_datetime(behav_datetime).day
+        df_to_plot["Day in Month"].values[i] = behav_day_in_month
+    df_to_plot = df_to_plot.groupby("Day in Month", as_index=False).agg({"Actual Efficacy": 'mean'})
 
     generate_simple_plot_return_PNG_and_save_to_file(
         "bar", # plot type ("column", "hist", "hist2d", "line", "scatter")
-        df_to_plot["Age"], # x-series of the data
+        df_to_plot["Day in Month"], # x-series of the data
         df_to_plot["Actual Efficacy"], # y-series of the data (optional)
-        'Age', # x-axis label
+        'Day of Month', # x-axis label
+        'Actual Efficacy', # y-axis label (optional)
+        0, # rotation of x-tick labels
+        None, # custom xy-tick label fontsize
+        cfg.plot_bar_data_color, # the main color for the data
+        1.0, # optional alpha value for the data
+        None, # the color mapping for use in legend
+        "Level of persons’ average actual Efficacy\n by the day of the month", # title for the whole plot
+        "lower left", # location for WFS logo (e.g., "upper right")
+        "png_plt_Eff_by_day_of_month_bar.png" # name for PNG file
+        )
+
+
+def plot_Eff_by_day_in_series_bar():
+    """
+    Save to file and return a PNG bar plot of Actual Efficacy scores
+    by the day in the simulated series.
+    """
+
+    # Prepare the data.
+    df_to_plot = cfg.behavs_act_df.copy()
+    df_to_plot = df_to_plot.groupby("Event Date", as_index=False).agg({"Actual Efficacy": 'mean'})
+
+    generate_simple_plot_return_PNG_and_save_to_file(
+        "bar", # plot type ("column", "hist", "hist2d", "line", "scatter")
+        df_to_plot["Event Date"], # x-series of the data
+        df_to_plot["Actual Efficacy"], # y-series of the data (optional)
+        'Day in Series', # x-axis label
+        'Actual Efficacy', # y-axis label (optional)
+        0, # rotation of x-tick labels
+        None, # custom xy-tick label fontsize
+        cfg.plot_bar_data_color, # the main color for the data
+        1.0, # optional alpha value for the data
+        None, # the color mapping for use in legend
+        "Level of persons’ average actual Efficacy\n by day in the series", # title for the whole plot
+        "lower left", # location for WFS logo (e.g., "upper right")
+        "png_plt_Eff_by_day_series_bar.png" # name for PNG file
+        )
+
+
+def plot_teamworks_by_day_of_month_bar():
+    """
+    Save to file and return a PNG bar plot of the number
+    of Teamwork behaviors by day of the month.
+    """
+
+    # Prepare the data.
+    df_to_plot = cfg.behavs_act_df.copy()
+
+    df_to_plot_OHE_Behavior_Comptype = pd.get_dummies(df_to_plot["Behavior Comptype"], prefix = "BC", prefix_sep = " ")
+    df_to_plot = pd.merge(
+        left = df_to_plot,
+        right = df_to_plot_OHE_Behavior_Comptype,
+        left_index=True,
+        right_index=True,
+        )
+
+    # Add a column with the day of the month.
+    df_to_plot["Day in Month"] = None
+    for i in range(len(df_to_plot)):
+        behav_datetime = df_to_plot["Event Datetime"].values[i]
+        behav_day_in_month = pd.to_datetime(behav_datetime).day
+        df_to_plot["Day in Month"].values[i] = behav_day_in_month
+    df_to_plot = df_to_plot.groupby("Day in Month", as_index=False).agg({"BC Teamwork": 'sum'})
+
+    generate_simple_plot_return_PNG_and_save_to_file(
+        "bar", # plot type ("column", "hist", "hist2d", "line", "scatter")
+        df_to_plot["Day in Month"], # x-series of the data
+        df_to_plot["BC Teamwork"], # y-series of the data (optional)
+        'Day of Month', # x-axis label
+        'Number of Teamwork Behaviors', # y-axis label (optional)
+        0, # rotation of x-tick labels
+        None, # custom xy-tick label fontsize
+        cfg.plot_bar_data_color, # the main color for the data
+        1.0, # optional alpha value for the data
+        None, # the color mapping for use in legend
+        "Number of Teamwork behaviors generated\n by the day of the month", # title for the whole plot
+        "lower left", # location for WFS logo (e.g., "upper right")
+        "png_plt_teamworks_by_day_of_month_bar.png" # name for PNG file
+        )
+
+
+def plot_disruptions_by_day_of_month_bar():
+    """
+    Save to file and return a PNG bar plot of the number
+    of Disruption behaviors by day of the month.
+    """
+
+    # Prepare the data.
+    df_to_plot = cfg.behavs_act_df.copy()
+
+    df_to_plot_OHE_Behavior_Comptype = pd.get_dummies(df_to_plot["Behavior Comptype"], prefix = "BC", prefix_sep = " ")
+    df_to_plot = pd.merge(
+        left = df_to_plot,
+        right = df_to_plot_OHE_Behavior_Comptype,
+        left_index=True,
+        right_index=True,
+        )
+
+    # Add a column with the day of the month.
+    df_to_plot["Day in Month"] = None
+    for i in range(len(df_to_plot)):
+        behav_datetime = df_to_plot["Event Datetime"].values[i]
+        behav_day_in_month = pd.to_datetime(behav_datetime).day
+        df_to_plot["Day in Month"].values[i] = behav_day_in_month
+    df_to_plot = df_to_plot.groupby("Day in Month", as_index=False).agg({"BC Disruption": 'sum'})
+
+    generate_simple_plot_return_PNG_and_save_to_file(
+        "bar", # plot type ("column", "hist", "hist2d", "line", "scatter")
+        df_to_plot["Day in Month"], # x-series of the data
+        df_to_plot["BC Disruption"], # y-series of the data (optional)
+        'Day of Month', # x-axis label
+        'Number of Disruption Behaviors', # y-axis label (optional)
+        0, # rotation of x-tick labels
+        None, # custom xy-tick label fontsize
+        cfg.plot_bar_data_color, # the main color for the data
+        1.0, # optional alpha value for the data
+        None, # the color mapping for use in legend
+        "Number of Disruption behaviors generated\n by the day of the month", # title for the whole plot
+        "lower left", # location for WFS logo (e.g., "upper right")
+        "png_plt_disruptions_by_day_of_month_bar.png" # name for PNG file
+        )
+
+
+def plot_slips_by_day_of_month_bar():
+    """
+    Save to file and return a PNG bar plot of the number
+    of Slip behaviors by day of the month.
+    """
+
+    # Prepare the data.
+    df_to_plot = cfg.behavs_act_df.copy()
+
+    df_to_plot_OHE_Behavior_Comptype = pd.get_dummies(df_to_plot["Behavior Comptype"], prefix = "BC", prefix_sep = " ")
+    df_to_plot = pd.merge(
+        left = df_to_plot,
+        right = df_to_plot_OHE_Behavior_Comptype,
+        left_index=True,
+        right_index=True,
+        )
+
+    # Add a column with the day of the month.
+    df_to_plot["Day in Month"] = None
+    for i in range(len(df_to_plot)):
+        behav_datetime = df_to_plot["Event Datetime"].values[i]
+        behav_day_in_month = pd.to_datetime(behav_datetime).day
+        df_to_plot["Day in Month"].values[i] = behav_day_in_month
+    df_to_plot = df_to_plot.groupby("Day in Month", as_index=False).agg({"BC Slip": 'sum'})
+
+    generate_simple_plot_return_PNG_and_save_to_file(
+        "bar", # plot type ("column", "hist", "hist2d", "line", "scatter")
+        df_to_plot["Day in Month"], # x-series of the data
+        df_to_plot["BC Slip"], # y-series of the data (optional)
+        'Day of Month', # x-axis label
+        'Number of Slip Behaviors', # y-axis label (optional)
+        0, # rotation of x-tick labels
+        None, # custom xy-tick label fontsize
+        cfg.plot_bar_data_color, # the main color for the data
+        1.0, # optional alpha value for the data
+        None, # the color mapping for use in legend
+        "Number of Slip behaviors generated\n by the day of the month", # title for the whole plot
+        "lower left", # location for WFS logo (e.g., "upper right")
+        "png_plt_slips_by_day_of_month_bar.png" # name for PNG file
+        )
+
+
+def plot_Eff_by_age_bar():
+    """
+    Save to file and return a PNG bar plot of Actual Efficacy scores by weekday.
+    """
+
+    # Prepare the data.
+    df_to_plot = cfg.behavs_act_df.copy()
+    df_to_plot = df_to_plot.groupby("Sub Age", as_index=False).agg({"Actual Efficacy": 'mean'})
+
+    generate_simple_plot_return_PNG_and_save_to_file(
+        "bar", # plot type ("column", "hist", "hist2d", "line", "scatter")
+        df_to_plot["Sub Age"], # x-series of the data
+        df_to_plot["Actual Efficacy"], # y-series of the data (optional)
+        'Sub Age', # x-axis label
         'Actual Efficacy', # y-axis label (optional)
         0, # rotation of x-tick labels
         None, # custom xy-tick label fontsize
@@ -688,19 +896,19 @@ def plot_Eff_by_age_bar():
 
 def plot_Eff_mean_by_workstyle_group_bar():
     """
-    Save to file and return a PNG bar plot of mean Efficacy scores by 
-    persons' Workstyle group.
+    Save to file and return a PNG bar plot of mean Actual Efficacy scores by 
+    subjects' Workstyle group.
     """
 
     # Prepare the data.
     df_to_plot = cfg.behavs_act_df.copy()
-    df_to_plot = df_to_plot.groupby("Workstyle", as_index=False).agg({"Actual Efficacy": 'mean'})
+    df_to_plot = df_to_plot.groupby("Sub Workstyle", as_index=False).agg({"Actual Efficacy": 'mean'})
 
     generate_simple_plot_return_PNG_and_save_to_file(
         "bar", # plot type ("column", "hist", "hist2d", "line", "scatter")
-        df_to_plot["Workstyle"], # x-series of the data
+        df_to_plot["Sub Workstyle"], # x-series of the data
         df_to_plot["Actual Efficacy"], # y-series of the data (optional)
-        'Workstyle', # x-axis label
+        'Sub Workstyle', # x-axis label
         'Actual Efficacy (mean)', # y-axis label (optional)
         0, # rotation of x-tick labels
         None, # custom xy-tick label fontsize
@@ -715,19 +923,19 @@ def plot_Eff_mean_by_workstyle_group_bar():
 
 def plot_Eff_sd_by_workstyle_group_bar():
     """
-    Save to file and return a PNG bar plot of the SD of Efficacy scores by 
-    persons' Workstyle group.
+    Save to file and return a PNG bar plot of the SD of Actual Efficacy scores by 
+    subjects' Workstyle group.
     """
 
     # Prepare the data.
     df_to_plot = cfg.behavs_act_df.copy()
-    df_to_plot = df_to_plot.groupby("Workstyle", as_index=False).agg({"Actual Efficacy (SD)": 'std'})
+    df_to_plot = df_to_plot.groupby("Sub Workstyle", as_index=False).agg({"Actual Efficacy (SD)": 'std'})
 
     generate_simple_plot_return_PNG_and_save_to_file(
         "bar", # plot type ("column", "hist", "hist2d", "line", "scatter")
-        df_to_plot["Workstyle"], # x-series of the data
+        df_to_plot["Sub Workstyle"], # x-series of the data
         df_to_plot["Actual Efficacy (SD)"], # y-series of the data (optional)
-        'Workstyle', # x-axis label
+        'Sub Workstyle', # x-axis label
         'Actual Efficacy (standard deviation)', # y-axis label (optional)
         0, # rotation of x-tick labels
         None, # custom xy-tick label fontsize
@@ -742,17 +950,17 @@ def plot_Eff_sd_by_workstyle_group_bar():
 
 def plot_Eff_by_colleagues_of_same_sex_bar():
     """
-    Save to file and return a PNG bar plot of Efficacy scores by 
-    the proportion of a person's teammates who are of the same sex.
+    Save to file and return a PNG bar plot of Actual Efficacy scores by 
+    the proportion of a subject's teammates who are of the same sex.
     """
 
     # Prepare the data.
     df_to_plot = cfg.behavs_act_df.copy()
-    df_to_plot = df_to_plot.groupby("Same-Sex Colleagues Prtn", as_index=False).agg({"Actual Efficacy": 'mean'})
+    df_to_plot = df_to_plot.groupby("Sub Same-Sex Colleagues Prtn", as_index=False).agg({"Actual Efficacy": 'mean'})
 
     generate_simple_plot_return_PNG_and_save_to_file(
         "bar", # plot type ("column", "hist", "hist2d", "line", "scatter")
-        df_to_plot["Same-Sex Colleagues Prtn"], # x-series of the data
+        df_to_plot["Sub Same-Sex Colleagues Prtn"], # x-series of the data
         df_to_plot["Actual Efficacy"], # y-series of the data (optional)
         'Proportion of Same-Gender Colleagues', # x-axis label
         'Actual Efficacy', # y-axis label (optional)
@@ -769,17 +977,17 @@ def plot_Eff_by_colleagues_of_same_sex_bar():
 
 def plot_Eff_by_colleagues_of_same_sex_line():
     """
-    Save to file and return a PNG line plot of Efficacy scores by 
-    the proportion of a person's teammates who are of the same sex.
+    Save to file and return a PNG line plot of Actual Efficacy scores by 
+    the proportion of a subject's teammates who are of the same sex.
     """
 
     # Prepare the data.
     df_to_plot = cfg.behavs_act_df.copy()
-    df_to_plot = df_to_plot.groupby("Same-Sex Colleagues Prtn", as_index=False).agg({"Actual Efficacy": 'mean'})
+    df_to_plot = df_to_plot.groupby("Sub Same-Sex Colleagues Prtn", as_index=False).agg({"Actual Efficacy": 'mean'})
 
     generate_simple_plot_return_PNG_and_save_to_file(
         "line", # plot type ("column", "hist", "hist2d", "line", "scatter")
-        df_to_plot["Same-Sex Colleagues Prtn"], # x-series of the data
+        df_to_plot["Sub Same-Sex Colleagues Prtn"], # x-series of the data
         df_to_plot["Actual Efficacy"], # y-series of the data (optional)
         'Proportion of Same-Gender Colleagues', # x-axis label
         'Actual Efficacy', # y-axis label (optional)
@@ -796,8 +1004,8 @@ def plot_Eff_by_colleagues_of_same_sex_line():
 
 def plot_Eff_by_colleagues_of_same_sex_scatter():
     """
-    Save to file and return a PNG scatterplot of Efficacy scores by 
-    the proportion of a person's teammates who are of the same sex.
+    Save to file and return a PNG scatterplot of Actual Efficacy scores by 
+    the proportion of a subject's teammates who are of the same sex.
     """
 
     # Prepare the data.
@@ -805,7 +1013,7 @@ def plot_Eff_by_colleagues_of_same_sex_scatter():
 
     generate_simple_plot_return_PNG_and_save_to_file(
         "scatter", # plot type ("column", "hist", "hist2d", "line", "scatter")
-        df_to_plot["Same-Sex Colleagues Prtn"], # x-series of the data
+        df_to_plot["Sub Same-Sex Colleagues Prtn"], # x-series of the data
         df_to_plot["Actual Efficacy"], # y-series of the data (optional)
         'Proportion of Same-Gender Colleagues', # x-axis label
         'Actual Efficacy', # y-axis label (optional)
@@ -823,7 +1031,7 @@ def plot_Eff_by_colleagues_of_same_sex_scatter():
 def plot_Eff_by_sub_sup_age_difference_scatter():
     """
     Save to file and return a PNG scatterplot of (1) the difference in ages
-    between a person and his supervisor and (2) the person's mean Efficacy.
+    between a subject and his supervisor and (2) the subject's mean Actual Efficacy.
     """
 
     # Prepare the data.
@@ -831,7 +1039,7 @@ def plot_Eff_by_sub_sup_age_difference_scatter():
 
     generate_simple_plot_return_PNG_and_save_to_file(
         "scatter", # plot type ("column", "hist", "hist2d", "line", "scatter")
-        df_to_plot["Sub-Sup Age Difference"], # x-series of the data
+        df_to_plot["Sup-Sub Age Difference"], # x-series of the data
         df_to_plot["Actual Efficacy"], # y-series of the data (optional)
         'Subject-supervisor age difference', # x-axis label
         'Actual Efficacy', # y-axis label (optional)
@@ -849,16 +1057,16 @@ def plot_Eff_by_sub_sup_age_difference_scatter():
 def plot_Eff_by_sub_sup_age_difference_line():
     """
     Save to file and return a PNG line plot of (1) the difference in ages
-    between a person and his supervisor and (2) the person's mean Efficacy.
+    between a subject and his supervisor and (2) the person's mean Actual Efficacy.
     """
 
     # Prepare the data.
     df_to_plot = cfg.behavs_act_df.copy()
-    df_to_plot = df_to_plot.groupby("Sub-Sup Age Difference", as_index=False).agg({"Actual Efficacy": 'mean'})
+    df_to_plot = df_to_plot.groupby("Sup-Sub Age Difference", as_index=False).agg({"Actual Efficacy": 'mean'})
 
     generate_simple_plot_return_PNG_and_save_to_file(
         "line", # plot type ("column", "hist", "hist2d", "line", "scatter")
-        df_to_plot["Sub-Sup Age Difference"], # x-series of the data
+        df_to_plot["Sup-Sub Age Difference"], # x-series of the data
         df_to_plot["Actual Efficacy"], # y-series of the data (optional)
         'Subject-supervisor age difference', # x-axis label
         'Actual Efficacy', # y-axis label (optional)
@@ -876,17 +1084,17 @@ def plot_Eff_by_sub_sup_age_difference_line():
 def plot_recorded_Eff_by_sub_sup_age_difference_line():
     """
     Save to file and return a PNG line plot of (1) the difference in ages
-    between a person and his supervisor and (2) the person's *recorded* 
-    mean Efficacy.
+    between a subject and his supervisor and (2) the subject's mean 
+    Recorded Efficacy.
     """
 
     # Prepare the data.
     df_to_plot = cfg.behavs_act_df.copy()
-    df_to_plot = df_to_plot.groupby("Sub-Sup Age Difference", as_index=False).agg({"Recorded Efficacy": 'mean'})
+    df_to_plot = df_to_plot.groupby("Sup-Sub Age Difference", as_index=False).agg({"Recorded Efficacy": 'mean'})
 
     generate_simple_plot_return_PNG_and_save_to_file(
         "line", # plot type ("column", "hist", "hist2d", "line", "scatter")
-        df_to_plot["Sub-Sup Age Difference"], # x-series of the data
+        df_to_plot["Sup-Sub Age Difference"], # x-series of the data
         df_to_plot["Recorded Efficacy"], # y-series of the data (optional)
         'Subject-supervisor age difference', # x-axis label
         'Recorded Efficacy', # y-axis label (optional)
@@ -904,22 +1112,23 @@ def plot_recorded_Eff_by_sub_sup_age_difference_line():
 def plot_Eff_mean_vs_Eff_sd_with_workstyles_scatter():
     """
     Save to file and return a PNG scatter plot of the mean and SD of 
-    workers' Efficacy scores, colored by a person's Workstyle group.
+    subjects' Actual Efficacy scores, colored by a subject's Workstyle group.
     """
+
     # Prepare the data.
     df_to_plot = cfg.behavs_act_df.copy()
-    df_to_plot = df_to_plot.groupby("Person ID", as_index=False).agg(
+    df_to_plot = df_to_plot.groupby("Sub ID", as_index=False).agg(
         {
             "Actual Efficacy": 'mean',
             "Actual Efficacy (SD)": 'std',
-            "Workstyle": 'last',
+            "Sub Workstyle": 'last',
             }
         )
 
     colors = {
         "Group A": "#00FA95", # bright green
         "Group B": "#ff00ff", # magenta
-        "Group C": "#9ea3ff", #lavender
+        "Group C": "#9ea3ff", # lavender
         "Group D": "#FF534F", # red
         "Group E": "#FFFD27", # yellow
         }
@@ -932,7 +1141,7 @@ def plot_Eff_mean_vs_Eff_sd_with_workstyles_scatter():
         'Actual Efficacy (standard deviation)', # y-axis label (optional)
         0, # rotation of x-tick labels
         None, # custom xy-tick label fontsize
-        df_to_plot["Workstyle"].map(colors), # the main color for the data
+        df_to_plot["Sub Workstyle"].map(colors), # the main color for the data
         0.5, # optional alpha value for the data
         colors, # the color mapping for use in legend
         "Persons’ mean Efficacy versus the SD of their actual daily Efficacy colored by Workstyle group", # title for the whole plot
@@ -946,10 +1155,11 @@ def plot_mday_series_Eff_for_behav_comptype_bar(
     d0_event_name_u, # name of the D0 event type (e.g., "Good", "False Negative")
     ):
     """
-    Save to file and return a PNG bar plot showing the mean actual Efficacy
-    behaviors for workers on the days before and after a certain type of
+    Save to file and return a PNG bar plot showing the mean Actual Efficacy
+    behaviors for subjects on the days before and after a certain type of
     actual behavior (i.e., an mday series).
     """
+
     # Prepare the data.
     df_to_plot = cfg.behavs_act_df.copy()
 
@@ -973,7 +1183,7 @@ def plot_mday_series_Eff_for_behav_comptype_bar(
         )
 
     # Extract only those columns containing the mday series
-    # actual Eff values.
+    # Actual Efficacy values.
     df_to_plot = df_to_plot[[
         "D-4 Eff",
         "D-3 Eff",
@@ -987,7 +1197,7 @@ def plot_mday_series_Eff_for_behav_comptype_bar(
         ]]
 
     # Specify as X values for the plot the names of the columns 
-    # containing the mday series Eff values.
+    # containing the mday series Actual Efficacy values.
     data_x = [
         "D-4 Eff",
         "D-3 Eff",
@@ -1001,7 +1211,7 @@ def plot_mday_series_Eff_for_behav_comptype_bar(
         ]
 
     # Specify as Y values for the plot the contents of the lone
-    # row of the DF (i.e., the mean values for each day in the 
+    # row of the DF (i.e., the mean Actual Efficacy values for each day in the 
     # mday series).
     data_y = df_to_plot.loc[0, :].values.tolist()
 
@@ -1025,22 +1235,31 @@ def plot_mday_series_Eff_for_behav_comptype_bar(
 def plot_disruptions_mean_by_workstyle_group_bar():
     """
     Save to file and return a PNG bar plot of the mean number of
-    Disruptions per person, by persons' Workstyle group membership.
+    Disruptions per subject, by subjects' Workstyle group membership.
     """
 
     # Prepare the data.
     df_to_plot = cfg.behavs_act_df.copy()
-    df_to_plot = df_to_plot.groupby("Person ID", as_index=False).agg({
-        "Workstyle": 'last',
-        "Disruption (Behavior Comptype)": 'sum',
+
+    df_to_plot_OHE_Behavior_Comptype = pd.get_dummies(df_to_plot["Behavior Comptype"], prefix = "BC", prefix_sep = " ")
+    df_to_plot = pd.merge(
+        left = df_to_plot,
+        right = df_to_plot_OHE_Behavior_Comptype,
+        left_index=True,
+        right_index=True,
+        )
+
+    df_to_plot = df_to_plot.groupby("Sub ID", as_index=False).agg({
+        "Sub Workstyle": 'last',
+        "BC Disruption": 'sum',
         })
-    df_to_plot = df_to_plot.groupby("Workstyle", as_index=False).agg({"Disruption (Behavior Comptype)": 'mean'})
+    df_to_plot = df_to_plot.groupby("Sub Workstyle", as_index=False).agg({"BC Disruption": 'mean'})
 
     generate_simple_plot_return_PNG_and_save_to_file(
         "bar", # plot type ("column", "hist", "hist2d", "line", "scatter")
-        df_to_plot["Workstyle"], # x-series of the data
-        df_to_plot["Disruption (Behavior Comptype)"], # y-series of the data (optional)
-        'Workstyle', # x-axis label
+        df_to_plot["Sub Workstyle"], # x-series of the data
+        df_to_plot["BC Disruption"], # y-series of the data (optional)
+        'Sub Workstyle', # x-axis label
         'Mean number of Disruptions per person in Workstyle group', # y-axis label (optional)
         0, # rotation of x-tick labels
         None, # custom xy-tick label fontsize
@@ -1056,22 +1275,31 @@ def plot_disruptions_mean_by_workstyle_group_bar():
 def plot_ideas_mean_by_workstyle_group_bar():
     """
     Save to file and return a PNG bar plot of the mean number of
-    Ideas per person, by persons' Workstyle group membership.
+    Ideas per subject, by subjects' Workstyle group membership.
     """
 
     # Prepare the data.
     df_to_plot = cfg.behavs_act_df.copy()
-    df_to_plot = df_to_plot.groupby("Person ID", as_index=False).agg({
-        "Workstyle": 'last',
-        "Idea (Behavior Comptype)": 'sum',
+
+    df_to_plot_OHE_Behavior_Comptype = pd.get_dummies(df_to_plot["Behavior Comptype"], prefix = "BC", prefix_sep = " ")
+    df_to_plot = pd.merge(
+        left = df_to_plot,
+        right = df_to_plot_OHE_Behavior_Comptype,
+        left_index=True,
+        right_index=True,
+        )
+
+    df_to_plot = df_to_plot.groupby("Sub ID", as_index=False).agg({
+        "Sub Workstyle": 'last',
+        "BC Idea": 'sum',
         })
-    df_to_plot = df_to_plot.groupby("Workstyle", as_index=False).agg({"Idea (Behavior Comptype)": 'mean'})
+    df_to_plot = df_to_plot.groupby("Sub Workstyle", as_index=False).agg({"BC Idea": 'mean'})
 
     generate_simple_plot_return_PNG_and_save_to_file(
         "bar", # plot type ("column", "hist", "hist2d", "line", "scatter")
-        df_to_plot["Workstyle"], # x-series of the data
-        df_to_plot["Idea (Behavior Comptype)"], # y-series of the data (optional)
-        'Workstyle', # x-axis label
+        df_to_plot["Sub Workstyle"], # x-series of the data
+        df_to_plot["BC Idea"], # y-series of the data (optional)
+        'Sub Workstyle', # x-axis label
         'Mean number of Ideas per person in Workstyle group', # y-axis label (optional)
         0, # rotation of x-tick labels
         None, # custom xy-tick label fontsize
@@ -1089,13 +1317,13 @@ def plot_ideas_mean_by_workstyle_group_bar():
 # ● Other plot types
 # ●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●● 
 
-def generate_behavior_row_internal_correlations_heatmap():
+def generate_event_row_internal_correlations_heatmap():
     """
     Save to file and return a PNG with a heatmap showing correlations of
     certain variables that all appear on the *same row* of behavs_act_df
-    (i.e., that are all recorded as part of a single behavior-record).
+    (i.e., that are all recorded as part of a single behavior-record event).
 
-    This treats each *behavior-record* row (not each person) as the
+    This treats each *behavior-record* event row (not each subject) as the
     fundamental data-point to be compared with others.
 
     Note! This uses Seaborn, whose import disrupts
@@ -1107,17 +1335,17 @@ def generate_behavior_row_internal_correlations_heatmap():
     correlations_df = utils.return_df_with_selected_cols_from_df(
         cfg.behavs_act_df, # the input DF
         [
-            "Health",
-            "Commitment",
-            "Perceptiveness",
-            "Dexterity",
-            "Sociality",
-            "Goodness",
-            "Strength",
-            "Openmindedness",
-            "Age",
-            "Sub-Sup Age Difference",
-            "Same-Sex Colleagues Prtn",
+            "Sub Health",
+            "Sub Commitment",
+            "Sub Perceptiveness",
+            "Sub Dexterity",
+            "Sub Sociality",
+            "Sub Goodness",
+            "Sub Strength",
+            "Sub Openmindedness",
+            "Sub Age",
+            "Sup-Sub Age Difference",
+            "Sub Same-Sex Colleagues Prtn",
             "Weekday Num",
             "Actual Efficacy",
             "Recorded Efficacy",
@@ -1141,19 +1369,19 @@ def generate_behavior_row_internal_correlations_heatmap():
         None, # the main color for the data
         None, # optional alpha value for the data
         None, # the color mapping for use in legend
-        "Correlations between a single person’s total/mean elements\n(dataset for " + str(cfg.size_of_comm_initial) + " persons and " + str(cfg.num_of_days_to_simulate) + " days)", # title for the whole plot
+        "Correlations between elements within a single behavior-record event\n(dataset for " + str(cfg.size_of_comm_initial) + " persons and " + str(cfg.num_of_days_to_simulate_for_analysis) + " days)", # title for the whole plot
         "lower left", # location for WFS logo (e.g., "upper right")
         "heatmap1.png" # name for PNG file
         )
 
 
-def generate_between_behaviors_correlations_heatmap():
+def generate_interpersonal_correlations_heatmap():
     """
     Save to file and return a PNG with a heatmap showing correlations 
-    between different types of behavior-record rows for a given
-    person (e.g., between the number of Lapses and average Efficacy).
+    between different subjects' stats and events (e.g., between the number 
+    of Lapses and average Efficacy).
 
-    This treats each *person* (not each *behavior-record* row) as the
+    This treats each *subject* (not each *behavior-record* event row) as the
     fundamental data-point to be compared with others.
 
     Note! This uses Seaborn, whose import disrupts
@@ -1162,72 +1390,89 @@ def generate_between_behaviors_correlations_heatmap():
     """
 
     # Prepare the data.
+    correlations_df = cfg.behavs_act_df.copy()
+
+    correlations_df_OHE_Behavior_Comptype = pd.get_dummies(correlations_df["Behavior Comptype"], prefix = "BC", prefix_sep = " ")
+    correlations_df = pd.merge(
+        left = correlations_df,
+        right = correlations_df_OHE_Behavior_Comptype,
+        left_index=True,
+        right_index=True,
+        )
+    correlations_df_OHE_Record_Conf_Mat = pd.get_dummies(correlations_df["Record Conf Mat"], prefix = "RCM", prefix_sep = " ")
+    correlations_df = pd.merge(
+        left = correlations_df,
+        right = correlations_df_OHE_Record_Conf_Mat,
+        left_index=True,
+        right_index=True,
+        )
+
     correlations_df = utils.return_df_with_selected_cols_from_df(
-        cfg.behavs_act_df, # the input DF
+        correlations_df, # the input DF
         [
-            "Person ID",
-            "Health",
-            "Commitment",
-            "Perceptiveness",
-            "Dexterity",
-            "Sociality",
-            "Goodness",
-            "Strength",
-            "Openmindedness",
-            "Age",
-            "Sub-Sup Age Difference",
-            "Same-Sex Colleagues Prtn",
+            "Sub ID",
+            "Sub Health",
+            "Sub Commitment",
+            "Sub Perceptiveness",
+            "Sub Dexterity",
+            "Sub Sociality",
+            "Sub Goodness",
+            "Sub Strength",
+            "Sub Openmindedness",
+            "Sub Age",
+            "Sup-Sub Age Difference",
+            "Sub Same-Sex Colleagues Prtn",
             "Weekday Num",
-            "Presence (Behavior Comptype)",
+            "BC Presence",
             "Actual Efficacy",
             "Recorded Efficacy",
-            "Idea (Behavior Comptype)",
-            "Lapse (Behavior Comptype)",
-            "Feat (Behavior Comptype)",
-            "Slip (Behavior Comptype)",
-            "Teamwork (Behavior Comptype)",
-            "Disruption (Behavior Comptype)",
-            "Sacrifice (Behavior Comptype)",
-            "Sabotage (Behavior Comptype)",
-            "True Positive (Record Conf Mat)",
-            "False Negative (Record Conf Mat)",
+            "BC Idea",
+            "BC Lapse",
+            "BC Feat",
+            "BC Slip",
+            "BC Teamwork",
+            "BC Disruption",
+            "BC Sacrifice",
+            "BC Sabotage",
+            "RCM True Positive",
+            "RCM False Negative",
             ], # a list of columns to keep in the new DF
         )
 
     # Flatten the DF to only include one row for each person.
-    correlations_df = correlations_df.groupby("Person ID", as_index=False).agg(
+    correlations_df = correlations_df.groupby("Sub ID", as_index=False).agg(
         {
-            "Health": 'last',
-            "Commitment": 'last',
-            "Perceptiveness": 'last',
-            "Dexterity": 'last',
-            "Sociality": 'last',
-            "Goodness": 'last',
-            "Strength": 'last',
-            "Openmindedness": 'last',
-            "Age": 'last',
-            "Sub-Sup Age Difference": 'mean',
-            "Same-Sex Colleagues Prtn": 'mean',
-            "Presence (Behavior Comptype)": 'sum',
+            "Sub Health": 'last',
+            "Sub Commitment": 'last',
+            "Sub Perceptiveness": 'last',
+            "Sub Dexterity": 'last',
+            "Sub Sociality": 'last',
+            "Sub Goodness": 'last',
+            "Sub Strength": 'last',
+            "Sub Openmindedness": 'last',
+            "Sub Age": 'last',
+            "Sup-Sub Age Difference": 'mean',
+            "Sub Same-Sex Colleagues Prtn": 'mean',
+            "BC Presence": 'sum',
             "Actual Efficacy": 'mean',
             "Recorded Efficacy": 'mean',
-            "Idea (Behavior Comptype)": 'sum',
-            "Lapse (Behavior Comptype)": 'sum',
-            "Feat (Behavior Comptype)": 'sum',
-            "Slip (Behavior Comptype)": 'sum',
-            "Teamwork (Behavior Comptype)": 'sum',
-            "Disruption (Behavior Comptype)": 'sum',
-            "Sacrifice (Behavior Comptype)": 'sum',
-            "Sabotage (Behavior Comptype)": 'sum',
-            "True Positive (Record Conf Mat)": 'sum',
-            "False Negative (Record Conf Mat)": 'sum',
+            "BC Idea": 'sum',
+            "BC Lapse": 'sum',
+            "BC Feat": 'sum',
+            "BC Slip": 'sum',
+            "BC Teamwork": 'sum',
+            "BC Disruption": 'sum',
+            "BC Sacrifice": 'sum',
+            "BC Sabotage": 'sum',
+            "RCM True Positive": 'sum',
+            "RCM False Negative": 'sum',
             }
         )
 
-    # Delete the "Person ID" column.
+    # Delete the "Sub ID" column.
     correlations_df = utils.return_df_with_selected_cols_deleted(
         correlations_df, # the input DF
-        ["Person ID"], # a list of columns to delete from the DF
+        ["Sub ID"], # a list of columns to delete from the DF
         )
 
     # It's important to convert all columns to a numerical type,
@@ -1247,9 +1492,193 @@ def generate_between_behaviors_correlations_heatmap():
         None, # the main color for the data
         None, # optional alpha value for the data
         None, # the color mapping for use in legend
-        "Correlations between a single person’s total/mean elements\n(dataset for " + str(cfg.size_of_comm_initial) + " persons and " + str(cfg.num_of_days_to_simulate) + " days)", # title for the whole plot
+        "Correlations between a single person’s total/mean elements\n(dataset for " + str(cfg.size_of_comm_initial) + " persons and " + str(cfg.num_of_days_to_simulate_for_analysis) + " days)", # title for the whole plot
         "lower left", # location for WFS logo (e.g., "upper right")
         "heatmap2.png" # name for PNG file
+        )
+
+
+def plot_resignations_by_day_bar():
+    """
+    Save to file and return a PNG bar plot of Resignation behaviors
+    by day.
+    """
+
+    # Prepare the data.
+    df_to_plot = cfg.behavs_act_df.copy()
+
+    df_to_plot_OHE_Behavior_Comptype = pd.get_dummies(df_to_plot["Behavior Comptype"], prefix = "BC", prefix_sep = " ")
+    df_to_plot = pd.merge(
+        left = df_to_plot,
+        right = df_to_plot_OHE_Behavior_Comptype,
+        left_index=True,
+        right_index=True,
+        )
+
+    df_to_plot = df_to_plot.groupby("Event Date", as_index=False).agg({"BC Resignation": 'sum'})
+
+    generate_simple_plot_return_PNG_and_save_to_file(
+        "bar", # plot type ("column", "hist", "hist2d", "line", "scatter")
+        df_to_plot["Event Date"], # x-series of the data
+        df_to_plot["BC Resignation"], # y-series of the data (optional)
+        'Date', # x-axis label
+        'Number of Resignation Events', # y-axis label (optional)
+        90, # rotation of x-tick labels
+        None, # custom xy-tick label fontsize
+        cfg.plot_bar_data_color, # the main color for the data
+        1.0, # optional alpha value for the data
+        None, # the color mapping for use in legend
+        "Number of Resignation events by date", # title for the whole plot
+        "lower left", # location for WFS logo (e.g., "upper right")
+        "png_plt_resignations_by_date_bar.png" # name for PNG file
+        )
+
+
+def plot_terminations_by_day_bar():
+    """
+    Save to file and return a PNG bar plot of Termination records
+    by day.
+    """
+
+    # Prepare the data.
+    df_to_plot = cfg.behavs_act_df.copy()
+
+    df_to_plot_OHE_Record_Comptype = pd.get_dummies(df_to_plot["Record Comptype"], prefix = "RC", prefix_sep = " ")
+    df_to_plot = pd.merge(
+        left = df_to_plot,
+        right = df_to_plot_OHE_Record_Comptype,
+        left_index=True,
+        right_index=True,
+        )
+
+    df_to_plot = df_to_plot.groupby("Event Date", as_index=False).agg({"RC Termination": 'sum'})
+
+    generate_simple_plot_return_PNG_and_save_to_file(
+        "bar", # plot type ("column", "hist", "hist2d", "line", "scatter")
+        df_to_plot["Event Date"], # x-series of the data
+        df_to_plot["RC Termination"], # y-series of the data (optional)
+        'Date', # x-axis label
+        'Number of Termination Events', # y-axis label (optional)
+        90, # rotation of x-tick labels
+        None, # custom xy-tick label fontsize
+        cfg.plot_bar_data_color, # the main color for the data
+        1.0, # optional alpha value for the data
+        None, # the color mapping for use in legend
+        "Number of Termination events by date", # title for the whole plot
+        "lower left", # location for WFS logo (e.g., "upper right")
+        "png_plt_terminations_by_date_bar.png" # name for PNG file
+        )
+
+
+def plot_Eff_by_day_in_series_bar():
+    """
+    Save to file and return a PNG bar plot of Actual Efficacy scores
+    by the day in the portion of the simulated series retained for analysis.
+    """
+
+    # Prepare the data.
+    df_to_plot = cfg.behavs_act_df.copy()
+    df_to_plot = df_to_plot.groupby("Day in Series (1-based)", as_index=False).agg({"Actual Efficacy": 'mean'})
+
+    generate_simple_plot_return_PNG_and_save_to_file(
+        "bar", # plot type ("column", "hist", "hist2d", "line", "scatter")
+        df_to_plot["Day in Series (1-based)"], # x-series of the data
+        df_to_plot["Actual Efficacy"], # y-series of the data (optional)
+        'Day in Series', # x-axis label
+        'Actual Efficacy', # y-axis label (optional)
+        0, # rotation of x-tick labels
+        None, # custom xy-tick label fontsize
+        cfg.plot_bar_data_color, # the main color for the data
+        1.0, # optional alpha value for the data
+        None, # the color mapping for use in legend
+        "Level of persons’ average actual Efficacy\n by day in series", # title for the whole plot
+        "lower left", # location for WFS logo (e.g., "upper right")
+        "png_plt_Eff_by_day_in_series_bar.png" # name for PNG file
+        )
+
+
+def plot_Eff_by_date_bar():
+    """
+    Save to file and return a PNG bar plot of Actual Efficacy scores
+    by date.
+    """
+
+    # Prepare the data.
+    df_to_plot = cfg.behavs_act_df.copy()
+    df_to_plot = df_to_plot.groupby("Event Date", as_index=False).agg({"Actual Efficacy": 'mean'})
+
+    generate_simple_plot_return_PNG_and_save_to_file(
+        "bar", # plot type ("column", "hist", "hist2d", "line", "scatter")
+        df_to_plot["Event Date"], # x-series of the data
+        df_to_plot["Actual Efficacy"], # y-series of the data (optional)
+        'Date', # x-axis label
+        'Actual Efficacy', # y-axis label (optional)
+        90, # rotation of x-tick labels
+        None, # custom xy-tick label fontsize
+        cfg.plot_bar_data_color, # the main color for the data
+        1.0, # optional alpha value for the data
+        None, # the color mapping for use in legend
+        "Level of persons’ average actual Efficacy\n by date", # title for the whole plot
+        "lower left", # location for WFS logo (e.g., "upper right")
+        "png_plt_Eff_by_date.png" # name for PNG file
+        )
+
+
+def plot_Eff_by_week_in_series_bar():
+    """
+    Save to file and return a PNG bar plot of Actual Efficacy scores
+    by week in the simulated series.
+    """
+
+    # Prepare the data.
+    df_to_plot = cfg.behavs_act_df.copy()
+    df_to_plot = df_to_plot.groupby("Week in Series", as_index=False).agg({"Actual Efficacy": 'mean'})
+
+    generate_simple_plot_return_PNG_and_save_to_file(
+        "bar", # plot type ("column", "hist", "hist2d", "line", "scatter")
+        df_to_plot["Week in Series"], # x-series of the data
+        df_to_plot["Actual Efficacy"], # y-series of the data (optional)
+        'Date', # x-axis label
+        'Actual Efficacy', # y-axis label (optional)
+        0, # rotation of x-tick labels
+        None, # custom xy-tick label fontsize
+        cfg.plot_bar_data_color, # the main color for the data
+        1.0, # optional alpha value for the data
+        None, # the color mapping for use in legend
+        "Level of persons’ average actual Efficacy\n by week in the series", # title for the whole plot
+        "lower left", # location for WFS logo (e.g., "upper right")
+        "png_plt_Eff_by_week_in_series.png" # name for PNG file
+        )
+
+
+def plot_Eff_by_month_of_year_bar():
+    """
+    Save to file and return a PNG bar plot of Actual Efficacy scores
+    by month.
+    """
+
+    # Prepare the data.
+    df_to_plot = cfg.behavs_act_df.copy()
+    df_to_plot["Month of Year"] = None
+    for i in range(len(df_to_plot)):
+        df_to_plot["Month of Year"].values[i] = pd.to_datetime( df_to_plot["Event Datetime"].values[i]).month
+
+    df_to_plot = df_to_plot.groupby("Month of Year", as_index=False).agg({"Actual Efficacy": 'mean'})
+
+    generate_simple_plot_return_PNG_and_save_to_file(
+        "bar", # plot type ("column", "hist", "hist2d", "line", "scatter")
+        df_to_plot["Month of Year"], # x-series of the data
+        df_to_plot["Actual Efficacy"], # y-series of the data (optional)
+        'Month of the Year', # x-axis label
+        'Actual Efficacy', # y-axis label (optional)
+        0, # rotation of x-tick labels
+        None, # custom xy-tick label fontsize
+        cfg.plot_bar_data_color, # the main color for the data
+        1.0, # optional alpha value for the data
+        None, # the color mapping for use in legend
+        "Level of persons’ average actual Efficacy\n by month of the year", # title for the whole plot
+        "lower left", # location for WFS logo (e.g., "upper right")
+        "png_plt_Eff_by_month_of_year.png" # name for PNG file
         )
 
 

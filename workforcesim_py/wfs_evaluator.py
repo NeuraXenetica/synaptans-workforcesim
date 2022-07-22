@@ -27,7 +27,7 @@ predict future worker behaviors; (2) how much variation (e.g., in
 perceptiveness, objectivity, and completeness) can exist between
 individual managers’ approches to recording workers’ behaviors without
 undermining AI’s ability to detect certain trends and correlations or
-compromising the AI’s ability to accurately distinguish between the
+compromising AI’s ability to accurately distinguish between the
 organization’s “more effective” and “less effective” workers; and (3)
 which forms of machine learning and AI are able to best predict
 workers’ future behaviors despite the “noise” produced by certain

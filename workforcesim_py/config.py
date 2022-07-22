@@ -63,16 +63,16 @@ export_path_and_filename = "" # This value will be calculated.
 
 # A unique code for the given run of the simulation, which can be used
 # as a prefix for the files to be saved that are associated with the run.
+# (The variant is formatted to be used as a suffix rather than a prefix.)
 unique_file_prefix_code_for_simulation_run = None
+unique_file_suffix_code_for_simulation_run = None
 
-random_seed_A = 4 # ◀■=■=■=■=■
-#random_seed_B = 0
-#random_seed_C = 0
-#random_seed_D = 0
+# The main random seed used in modules.
+random_seed_A = 98 # ◀■=■=■=■=■
 
 # The overall "strength of effect" modifier that influences
 # the strength of a number of effects (e.g., interdependencies).
-strength_of_effect = 0.25
+strength_of_effect = 1.0
 
 # If an OEE system is in use, each manager records workers' Efficacy
 # with 100% accuracy. If no OEE system is in use, the manager makes a 
@@ -85,17 +85,55 @@ emp_id_starting_value = 0 # This value will be calculated.
 # ---------------------------------------------------------------------
 # Variables relating to simulation iteration date and time.
 # ---------------------------------------------------------------------
-sim_starting_date = "2021-12-13"
 
-# The number of days must be >1, in order to avoid problem when
+# This is the time at which processing of the simulation begins on the
+# user's computer; it's used for tracking elapsed processing time.
+sim_processing_start_datetime = None
+
+# This is the first date of the period to be simulated (not the 
+# date on which the simulation is actually run). If an initial priming period
+# is being included, this is the start of the priming period, not the
+# first date of the period whose results will be retained for analysis.
+sim_starting_date = "2020-10-01"
+
+# This is the first date of the simulated period that should be retained
+# in the dataset and used for analysis and visualization. If this is
+# later than sim_starting_date, the difference represents a sort of
+# "priming period" for initializing the simulation's dynamics. This helps 
+# "smooth out" the simulation results and account for the fact that (e.g.) 
+# some types of separations that require a certain number of events to 
+# occur or days to pass *can't* happen at the beginning of the simulation.
+#
+# Setting this value to the same as sim_starting_date allows one to 
+# simulate the opening of a brand new factory that *had* no previous 
+# workers or history.
+sim_starting_date_for_analysis = "2021-01-01"
+
+# The number of days must be >1, in order to avoid problems when
 # generating the SD of certain entry values (e.g., Efficacy behaviors).
-# This is the number of *workdays* that should actually be simulated,
-# which (because of the existence of weekends) is less than the number
-# of calendar days spanned by the period.
-num_of_days_to_simulate = 10 # ◀■■■■■■■
+#
+# This number doesn't include any "priming period" for the simulation; it is
+# the number of simulated days that should be retained in the dataset
+# for analysis and visualization.
+num_of_days_to_simulate_for_analysis = 30 # ◀■■■■■■■ 546 days = 18 months
+
+# The total number of days to be simulated (including both the days in 
+# the priming period and the number of days to be simulated for analysis
+# and visualization). This number will be calculated automatically.
+num_of_days_to_simulate = None
+
+# Number of days in the priming period (if any). This will be
+# automatically calculated.
+num_of_days_in_priming_period = None
 
 current_datetime_obj = None # This value will be calculated.
 day_of_sim_iter = 0 # This value will be updated; 0 is the first simulated day.
+day_of_month_1_indexed = None # This value will be updated based on the simulated calendar.
+
+# This number will be stored permanently as a reference; it will not
+# be updated with each new simulated day. If the simulation has, e.g.,
+# a 3-day priming period, then this value will be -3.
+day_of_sim_iter_for_first_simulated_day = None
 
 
 # ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
@@ -110,7 +148,7 @@ day_of_sim_iter = 0 # This value will be updated; 0 is the first simulated day.
 # is a separate person object of the Person class.
 persons = {} # This value will be calculated.
 
-# A Pandas DataFrame containing selected attributes of all persons.
+# A DataFrame containing selected attributes of all persons.
 persons_df = None # This value will be calculated.
 
 # The dictionary of roles, in which each entry (role)
@@ -121,16 +159,16 @@ roles = {} # This value will be calculated.
 # is a separate shift object of the Shift class.
 shifts = {} # This value will be calculated.
 
-# The total number of "Laborers" proper (and not persons more generally)
-# who should be part of each shift.
+# The total number of persons with the role of "Laborer" (and not persons more 
+# generally) who should be part of each shift.
 num_of_laborers_per_shift = 0 # This value will be calculated.
 
 # The dictionary of teams, in which each entry (team)
 # is a separate team object of the Team class.
 teams = {} # This value will be calculated.
 
-# This list tracks how many Team Leaders still need to be assigned
-# to each team. Each team begins by needing 1 Team Leader
+# During initialization, this list tracks how many Team Leaders still need
+# to be assigned to each team. Each team begins by needing 1 Team Leader
 # (apart from the special "unassigned" team, which doesn't
 # need any Team leaders to be added).
 num_of_leaders_needed = [] # This value will be calculated.
@@ -147,15 +185,17 @@ sphere_of_given_team = [] # This value will be calculated.
 # ---------------------------------------------------------------------
 # Workforce configuration variables.
 # ---------------------------------------------------------------------
+
+# Minimum and maximum age of persons at the start of the simulation.
 min_person_age = 18
 max_person_age = 65
-#ATD_stat_mean = 0.8
-#ATD_stat_sdev = 0.2
+
+# Mean and standard deviation used in generating certain personal stats.
 other_stats_stat_mean = 0.8 # ◀■=■=■=■=■
 other_stats_stat_sdev = 0.2 # ◀■=■=■=■=■
 
-# Set the initial size of the community.
-# The total number of "Laborers" proper (and not persons more generally)
+# Here the initial size of the community is set by specifying
+# the total number of "Laborers" proper (and not persons more generally)
 # who should be part of each team.
 #
 # The value of this variable determines how many total persons will
@@ -163,9 +203,9 @@ other_stats_stat_sdev = 0.2 # ◀■=■=■=■=■
 #
 # The total size of the workforce community will be:
 #       cfg.size_of_comm_initial = \
-#       (cfg.num_of_laborers_per_team) * 24 + 4
+#           (cfg.num_of_laborers_per_team) * 24 + 24 + 4
 #
-# This would yield, e.g., the following workforce sizes:
+# This yields, e.g., the following workforce sizes:
 #
 #       num_of_laborers_per_team        Total size of workforce
 #       1                               52
@@ -174,6 +214,7 @@ other_stats_stat_sdev = 0.2 # ◀■=■=■=■=■
 #       4                               124
 #       5                               148
 #       10                              268
+#       15                              388
 #       20                              508
 #       30                              748
 #       40                              988
@@ -189,18 +230,18 @@ other_stats_stat_sdev = 0.2 # ◀■=■=■=■=■
 #       207                             4996
 #       208                             5020
 #
-num_of_laborers_per_team = 1 # ◀■■■■■■■
+num_of_laborers_per_team = 20 # ◀■■■■■■■
 
 # This value will be calculated, based on num_of_laborers_per_team.
 size_of_comm_initial = 0
 
-num_of_teams_per_shift = 8 # This value will be calculated?
+num_of_teams_per_shift = 8 # This value will be calculated.
 
 
 # ---------------------------------------------------------------------
 # Workstyle group membership probabilities.
 # ---------------------------------------------------------------------
-# The probability that a newly created worker is assigned to
+# This is the probability that a newly created worker is assigned to
 # a given Workstyle group. For each demographic type, the sum of these 
 # numbers should be 1.0.
 
@@ -230,33 +271,149 @@ workstyle_prob_younger_male_E = 0.20
 
 
 # ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
-# █ Variables relating to behaviors, records, and other actions
-# █ (including action probabilities, impacts, and contests)
+# █ Variables relating to behaviors, records, and other elements of 
+# █ events (including action probabilities, impacts, and contests)
 # ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+
+# ---------------------------------------------------------------------
+# Kinds of behaviors and records.
+# ---------------------------------------------------------------------
+
+behav_types = [
+    "Separation",
+    "Onboarding",
+    "Attendance",
+    "Good",
+    "Poor",
+    "Efficacy",
+    ]
+
+behav_subtypes = [
+    "Resignation",
+    "Termination",
+    "Presence",
+    "Absence",
+    "Idea",
+    "Lapse",
+    "Feat",
+    "Slip",
+    "Teamwork",
+    "Disruption",
+    "Sacrifice",
+    "Sabotage",
+    ]
+
+behav_natures = [
+    "Low Commitment",
+    "Ethically Inferior Supervisor",
+    "Unrecognized Good Behaviors",
+    "Recruited Away",
+    "Underrecorded Efficacy",
+    "Poor Teammates",
+    "Multiple Sabotages",
+    "Lapses and Below-Average Efficacy",
+    "Multiple Lapses",
+    "Multiple Slips",
+    "Multiple Disruptions",
+    "Multiple Absences",
+    "Low Efficacy",
+    ]
+
+# "Comptypes" are "comparative types" or "comparison types"; they reflect
+# that aspect of a behavior that's most relevant when plotting it against
+# other types of events. For some types of behaviors, the Comptype is the
+# same as a behavior's Type; for others, it's the same as a behavior's
+# Subtype.
+behav_comptypes = [
+    "Resignation",
+    "Termination",
+    "Onboarding",
+    "Presence",
+    "Absence",
+    "Idea",
+    "Lapse",
+    "Feat",
+    "Slip",
+    "Teamwork",
+    "Disruption",
+    "Sacrifice",
+    "Sabotage",
+    "Efficacy",
+    ]
+
+record_types = [
+    "Separation",
+    "Onboarding",
+    "Attendance",
+    "Good",
+    "Poor",
+    "Efficacy",
+    ]
+
+record_subtypes = []
+
+record_natures = []
+
+record_comptypes = [
+    "Resignation",
+    "Termination",
+    "Onboarding",
+    "Presence",
+    "Absence",
+    "Idea",
+    "Lapse",
+    "Feat",
+    "Slip",
+    "Teamwork",
+    "Disruption",
+    "Sacrifice",
+    "Sabotage",
+    "Efficacy",
+    ]
+
 
 # ---------------------------------------------------------------------
 # Variables relating to workers' daily behaviors.
 # ---------------------------------------------------------------------
 
-# The master DF containing an entry for every actual behavior performed
-# by workers (including a worker's absence, which is itself a sort of
+# This is the master DF containing an entry for every actual behavior performed
+# by workers (including a worker's Absence, which is itself a sort of
 # behavior).
 behavs_act_df = None
+
+# An archival copy of behavs_act_df that includes entries made during
+# any "priming period" (whose contents will be excluded from analysis
+# and visualizations).
+behavs_act_df_w_priming_period = None
+
+# This is the temporary *list* of behaviors (each as an individual DF) for a 
+# given day to be added to behavs_act_df in one step, after all of the behaviors
+# for the day have been calculated.
+list_of_behavs_to_add_to_behavs_act_df = []
+
+# The average of all *actual* Efficacy values recorded in the organization
+# to date.
+org_actual_eff_values_mean = 0.0
+
+# The average of all *recorded* Efficacy values recorded in the organization
+# to date.
+org_recorded_eff_values_mean = 0.0
 
 
 # ---------------------------------------------------------------------
 # Base rates for particular actions by personnel.
 # ---------------------------------------------------------------------
 base_rate_attendance = 0.93
-base_rate_idea = 0.008
-base_rate_lapse = 0.08
-base_rate_feat = 0.008
-base_rate_slip = 0.08
-base_rate_teamwork = 0.008
-base_rate_disruption = 0.08
-base_rate_sacrifice = 0.008
-base_rate_sabotage = 0.08
-base_rate_efficacy = 0.32
+base_rate_attendance_sat = 0.0015
+base_rate_idea = 0.0085 # This is low, to compensate for the fact that some Workstyles generate a high number.
+base_rate_lapse = 0.062 # was 0.06 0.065
+base_rate_feat = 0.025
+base_rate_slip = 0.05 # was 0.08
+base_rate_teamwork = 0.022
+base_rate_disruption = 0.048 # was 0.052 0.055 0.04
+base_rate_sacrifice = 0.0055 # This is low, to compensate for its being additionally triggered by certain event combinations.
+base_rate_sabotage = 0.04 # was 0.055
+base_rate_efficacy = 0.36
 base_rate_false_positive = 0.01
 
 # If a person has, e.g., a Sociality stat of 0.85, this number is the multiplier
@@ -272,7 +429,7 @@ stat_to_prob_mod_conv_factor = 0.05
 # display a certain base level of variability, determined by this number.
 # This number is the "scale" for the np.random.normal function (centered on 0)
 # added to the modifier of a person's daily Efficacy score.
-base_max_efficacy_variability = 1.5
+base_max_efficacy_variability = 0.15 #
 
 # The base accuracy with which managers make records.
 base_rate_recording_accuracy = 0.65
@@ -282,7 +439,7 @@ base_rate_recording_accuracy = 0.65
 # larger the number, the more inaccurate the Efficacy records
 # will be.
 #
-# NOTE! This is currently a plain random number; changing it to
+# NOTE! This is currently an ordinary random number; changing it to
 # a randomized number using a mean and SD would be more realistic. 
 variance_to_eff_as_recorded_by_manager = 0.25
 
@@ -295,7 +452,7 @@ variance_to_eff_as_recorded_by_manager = 0.25
 # and by a random number (0.0-1.0), so for most persons, the actual Efficacy
 # multiplier resulting from membership in a workstyle group will be
 # significantly less than this number.
-workstyle_eff_level_modifier = 1.4 # ◀■=■=■=■=■
+workstyle_eff_level_modifier = 0.4525 # ◀■=■=■=■=■
 
 # This is the maximum daily variability that can be added to the actual
 # Efficacy of a member of a Workstyle group that has "variable" Efficacy.
@@ -305,15 +462,19 @@ workstyle_eff_level_modifier = 1.4 # ◀■=■=■=■=■
 # and by a random number (0.0-1.0), so for most persons, the actual Efficacy
 # variability resulting from membership in a workstyle group will be
 # significantly less than this number.
-workstyle_eff_max_daily_variability = 1.9 # ◀■=■=■=■=■
+workstyle_eff_max_daily_variability = 3.8 # ◀■=■=■=■=■
 
 # These are the maximum daily bonuses or penalties that give a particular
-# person an elevated or reduced probability of performing certain
-# types of actions (an Idea, a Slip, etc.) under certain circumstances.
-prob_elevation_for_disruption_due_to_workstyle = 0.04
-prob_reduction_for_disruption_due_to_workstyle = 0.5
-prob_elevation_for_idea_due_to_workstyle = 0.04
-prob_reduction_for_idea_due_to_workstyle = 0.57
+# person an elevated or reduced probability of generating certain
+# types of behaviors (an Idea, a Slip, etc.) under certain circumstances.
+prob_elevation_for_idea_due_to_workstyle = 1.35 # was 1.2
+prob_reduction_for_idea_due_to_workstyle = 0.8 # was 0.85
+prob_elevation_for_disruption_due_to_workstyle = 1.4 # was 0.85
+prob_reduction_for_disruption_due_to_workstyle = 0.95 # was 0.95
+
+prob_elevation_max_for_teamwork_due_to_day_in_month = 0.45
+prob_elevation_max_for_disruption_due_to_day_in_month = 0.4375
+prob_elevation_max_for_slip_due_to_day_in_month = 0.625
 
 # These are the maximum daily bonuses or penalties that can be added to
 # a person's Efficacy modifier, based on a given factor such as:
@@ -323,10 +484,12 @@ prob_reduction_for_idea_due_to_workstyle = 0.57
 #     - the difference in age between the person and his supervisor
 # This value is the maximum value "max" for the modifier random.uniform(0.0, max),
 # which is multiplied by the overall strength_of_effect.
-eff_bonus_max_from_person_age = 0.083
-eff_bonus_max_from_weekday = 0.65
-eff_bonus_max_from_teammate_sexes = 1.8
-eff_penalty_max_from_sup_age_diff = 0.04
+eff_bonus_max_from_person_age = 0.0275
+eff_bonus_max_from_weekday = 0.1625
+eff_bonus_max_from_teammate_sexes = 0.75 # was 0.725
+eff_penalty_max_from_sup_age_diff = 0.0275
+eff_bonus_max_from_day_in_month = 0.05
+eff_penalty_max_from_season_of_year = 0.225
 
 
 # ---------------------------------------------------------------------
@@ -342,8 +505,8 @@ eff_penalty_max_from_sup_age_diff = 0.04
 #
 # Adjusting these numbers is the simplest way of "coarsely" increasing
 # or decreasing the overall number of Good or Poor behaviors as a whole.
-defense_roll_max_behavior_good = 1.0 # ◀■=■=■=■=■
-defense_roll_max_behavior_poor = 0.9 # ◀■=■=■=■=■
+defense_roll_max_behavior_good = 3.0 # ◀■=■=■=■=■ Increase to make Good behaviors less likely.
+defense_roll_max_behavior_poor = 3.0 # ◀■=■=■=■=■ Increase to make Poor behaviors less likely.
 
 # The maximum number (a randomly generated number between 0.0 and this number)
 # that a person may need to beat with their adjusted stats and levels, in order
@@ -358,12 +521,12 @@ defense_roll_max_recording_TP = 0.8 # ◀■=■=■=■=■
 # Overall strength of the positive impact that a person's receiving a True Positive
 # record of a Good behavior that he had performed has over the following three days
 # on his actual Efficacy behaviors.
-strength_of_good_TP_record_impact_on_eff = 0.35 # ◀■=■=■=■=■
+strength_of_good_TP_record_impact_on_eff = 0.07 # ◀■=■=■=■=■
 
 # Overall strength of the negative impact that a person's receiving a False Negative
 # record of a Good behavior that he had performed has over the following three days
 # on his actual Efficacy behaviors.
-strength_of_good_FN_record_impact_on_eff = 0.38 # ◀■=■=■=■=■
+strength_of_good_FN_record_impact_on_eff = 0.1875 # ◀■=■=■=■=■
 
 
 # ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
@@ -377,24 +540,24 @@ plot_figure_dpi = 500
 plot_savefig_dpi = 500
 plot_figsize = (6.5, 3)
 plot_xy_label_fontsize = 7
-plot_xy_label_color = "#9ea3ff" #lavender
+plot_xy_label_color = "#9ea3ff" # lavender
 plot_xy_label_pad = 4
-plot_hist_data_color = "#ff00ff" #magenta
-plot_scatter_data_color = "#ff00ff" #magenta
-plot_line_data_color = "#00FA95" #bright green
+plot_hist_data_color = "#ff00ff" # magenta
+plot_scatter_data_color = "#ff00ff" # magenta
+plot_line_data_color = "#00FA95" # bright green
 plot_line_data_width = 1.85
-plot_bar_data_color = "#ffa74d" #orange-yellow
+plot_bar_data_color = "#ffa74d" # orange-yellow
 plot_background_facecolor = '#404040' # dark gray
-figure_background_facecolor = '#34343C' #darkest plum
+figure_background_facecolor = '#34343C' # darkest plum
 plot_bar_transition_grad_color = "#2A2A2A" # darker gray
 plot_bar_bottom_grad_color = "#191919" # almost black
 plot_xy_ticks_fontsize = 7
-plot_xy_ticks_color = "#fc8293" #salmon
+plot_xy_ticks_color = "#fc8293" # salmon
 plot_title_fontsize = 8
-plot_title_color = "#5cffe5" #cyan
+plot_title_color = "#5cffe5" # cyan
 
-ops_results_section_fig_bg_color = "#34343C" #darkest plum
-ops_results_section_fig_axis_bg_color = "black" #black
+ops_results_section_fig_bg_color = "#34343C" # darkest plum
+ops_results_section_fig_axis_bg_color = "black" # black
 
 
 # ---------------------------------------------------------------------
@@ -410,15 +573,15 @@ ops_results_section_fig_axis_bg_color = "black" #black
 # ---------------------------------------------------------------------
 # Terms used as column headers in DF tables and reports.
 # ---------------------------------------------------------------------
-person_id_header_term = "Person ID" # the user's term for the "Person ID" column header
-first_name_header_term = "First Name" # the user's term for the "First name" column header
-last_name_header_term = "Last Name" # the user's term for the "Last name" column header
-sex_header_term = "Sex" # the user's term for the "Sex" column header
-age_header_term = "Age" # the user's term for the "Age" column header
+person_id_header_term = "Sub ID" # the user's term for the "Sub ID" column header
+first_name_header_term = "Sub First Name" # the user's term for the "Sub First name" column header
+last_name_header_term = "Sub Last Name" # the user's term for the "Sub Last name" column header
+sex_header_term = "Sub Sex" # the user's term for the "Sub Sex" column header
+age_header_term = "Sub Age" # the user's term for the "Sub Age" column header
 sphere_header_term = "Sphere" # the user's term for the "Sphere" column header
-shift_header_term = "Shift" # the user's term for the "Shift" column header
-team_header_term = "Team" # the user's term for the "Team" column header
-role_header_term = "Role" # the user's term for the "Role" column header
+shift_header_term = "Sub Shift" # the user's term for the "Sub Shift" column header
+team_header_term = "Sub Team" # the user's term for the "Sub Team" column header
+role_header_term = "Sub Role" # the user's term for the "Sub Role" column header
 MNGR_CAP_header_term = "MNGR_CAP" # the user's term for the "MNGR_CAP" column header
 WRKR_CAP_header_term = "WRKR_CAP" # the user's term for the "WRKR_CAP" column header
 supervisor_header_term = "Supervisor" # the user's term for the "Supervisor" column header
@@ -434,10 +597,10 @@ subordinates_header_term = "Subordinates" # the user's term for the "Subordinate
 # The entries in the list must be maintained in order,
 # as items in the list of role titles are sometimes referenced
 # by functions using their index number.
-production_director_term = "Production Director" # the user term for "Production Director"
-shift_manager_term = "Shift Manager" # the user term for "Shift Manager"
-team_leader_term = "Team Leader" # the user term for "Team Leader"
-laborer_term = "Laborer" # the user term for (ordinary) "Laborer"
+production_director_term = "Production Director" # the user's term for "Production Director"
+shift_manager_term = "Shift Manager" # the user's term for "Shift Manager"
+team_leader_term = "Team Leader" # the user's term for "Team Leader"
+laborer_term = "Laborer" # the user's term for (ordinary) "Laborer"
 
 available_role_titles = [
     production_director_term,
@@ -453,12 +616,12 @@ available_role_titles = [
 # Specify the names of the one "unassigned" shift object
 # and the three regular shifts.
 # The entries in the list must be maintained in order,
-# as items in the list of role titles are sometimes referenced
+# as items in the list of shift titles are sometimes referenced
 # by functions using their index number.
-unassigned_shift_term = "unassigned" # the user term for the "unassigned" shift object
-shift_1_term = "Shift 1"  # the user term for the "Shift 1" shift object
-shift_2_term = "Shift 2"  # the user term for the "Shift 2" shift object
-shift_3_term = "Shift 3"  # the user term for the "Shift 3" shift object
+unassigned_shift_term = "unassigned" # the user's term for the "unassigned" shift object
+shift_1_term = "Shift 1"  # the user's term for the "Shift 1" shift object
+shift_2_term = "Shift 2"  # the user's term for the "Shift 2" shift object
+shift_3_term = "Shift 3"  # the user's term for the "Shift 3" shift object
 
 available_shift_titles = [
     unassigned_shift_term,
@@ -478,7 +641,7 @@ available_shift_titles = [
 # The remaining spheres in this list may have any nature, and there
 # can be any number of different terms in the list.
 available_sphere_titles = [
-    "general management", #this is the user term for "general management", specific to the Production Director and Shift Managers
+    "general management", # This is the user's term for "general management", specific to the Production Director and Shift Managers.
     "manufacturing",
     "packaging",
     "logistics",
@@ -488,10 +651,10 @@ available_sphere_titles = [
 # Specify the number of teams per shift handling each of the
 # spheres listed above.
 # The first sphere, "general management", doesn't have an entire
-# team; it's represented by the Production director and Shift managers.
+# team; it's represented by the Production Director and Shift Managers.
 # Its number will always be 0.
 teams_per_sphere_per_shift = [
-    0, #this number (always 0) is for "general management", specific to the Production Director and Shift Managers
+    0, # This number (always 0) is for "general management", specific to the Production Director and Shift Managers.
     4,
     2,
     1,
@@ -509,59 +672,109 @@ teams_per_sphere_per_shift = [
 # ---------------------------------------------------------------------
 
 first_names_M = [
+    "Adam",
+    "Andrew",
+    "Anthony",
+    "Benjamin",
     "Brian",
     "Carlos",
     "Charles",
     "Christopher",
     "Daniel",
     "David",
+    "Dennis",
+    "Douglas",
+    "Edward",
+    "Eric",
+    "Francis",
     "George",
+    "Gregory",
+    "Harold",
+    "Henry",
     "James",
     "Jason",
     "Jeffrey",
     "John",
     "Jose",
     "Joseph",
+    "Joshua",
+    "Juan",
     "Kenneth",
+    "Kevin",
     "Luis",
     "Mark",
+    "Martin",
     "Marvin",
     "Michael",
+    "Nathan",
+    "Patrick",
     "Paul",
+    "Peter",
+    "Phillip",
     "Richard",
     "Robert",
+    "Ryan",
+    "Samuel",
+    "Scott",
     "Sean",
-    "Steven",
+    "Stephen",
     "Thomas",
+    "Timothy",
+    "Victor",
     "William",
     ]
 
 first_names_F = [
+    "Alice",
     "Alma",
     "Amanda",
+    "Angela",
+    "Anna",
     "Barbara",
+    "Carol",
     "Christine",
     "Claudia",
+    "Cynthia",
+    "Diane",
+    "Dorothy",
     "Elizabeth",
     "Emily",
     "Eva",
+    "Helen",
     "Jennifer",
+    "Jessica",
     "Joan",
+    "Joyce",
     "Juanita",
+    "Karen",
+    "Katherine",
     "Kathleen",
     "Kimberly",
     "Laura",
     "Linda",
+    "Margaret",
     "Maria",
+    "Martha",
     "Mary",
+    "Melissa",
+    "Michelle",
     "Nancy",
+    "Nicole",
     "Patricia",
+    "Rebecca",
     "Rita",
+    "Ruth",
     "Samantha",
+    "Sandra",
     "Sarah",
+    "Sharon",
+    "Shirley",
+    "Stephanie",
     "Susan",
     "Tamara",
+    "Theresa",
     "Tonya",
+    "Virginia",
     ]
 
 # ---------------------------------------------------------------------
@@ -570,78 +783,208 @@ first_names_F = [
 
 last_names_M = [
     "Anderson",
+    "Andreassen",
     "Bailey",
     "Baker",
+    "Barnes",
+    "Bauer",
+    "Beaumont",
     "Brown",
+    "Butler",
+    "Byrne",
     "Carter",
+    "Castellano",
+    "Chao",
+    "Chen",
+    "Collins",
     "Cooper",
+    "Dahl",
     "Davis",
+    "Dietrich",
     "Evans",
+    "Fiore",
+    "Fischer",
+    "Flores",
+    "Fournier",
+    "Frazier",
     "Garcia",
+    "Gonzalez",
+    "Graziano",
+    "Grigoryan",
+    "Hansen",
     "Hall",
     "Hernandez",
     "Hoffman",
     "Howard",
+    "Huang",
+    "Hunt",
+    "Ishii",
+    "Johansen",
     "Johnson",
     "Jones",
+    "Kim",
+    "Kowalczyk",
+    "Lambert",
+    "Lee",
+    "Lewis",
+    "Lombardo",
+    "Lopez",
+    "Lorenz",
+    "Marino",
+    "Marshall",
     "Martinez",
+    "Milano",
     "Miller",
     "Mitchell",
     "Moore",
-    "Murray",
+    "Murphy",
+    "Nguyen",
+    "Novak",
     "Olson",
     "Ortiz",
     "Owens",
+    "Park",
+    "Parker",
+    "Patel",
     "Phillips",
     "Pierce",
     "Reed",
+    "Reynolds",
+    "Rivera",
+    "Robinson",
     "Rodriguez",
+    "Romano",
+    "Rossi",
+    "Ruiz",
+    "Sandoval",
+    "Schmidt",
     "Smith",
+    "Stepanyan",
+    "Suzuki",
     "Taylor",
     "Thompson",
     "Tran",
+    "Virtanen",
+    "Vogel",
+    "Walker",
     "Warren",
     "Washington",
+    "Watson",
+    "Webb",
+    "Weber",
+    "Wieczorek",
     "Williams",
     "Wilson",
+    "Winter",
+    "Wright",
+    "Yang",
+    "Yoshida",
+    "Yoon",
+    "Young",
+    "Zimmerman",
     ]
 
 last_names_F = [
     "Anderson",
+    "Andreassen",
     "Bailey",
     "Baker",
+    "Barnes",
+    "Bauer",
+    "Beaumont",
     "Brown",
+    "Butler",
+    "Byrne",
     "Carter",
+    "Castellano",
+    "Chao",
+    "Chen",
+    "Collins",
     "Cooper",
+    "Dahl",
     "Davis",
+    "Dietrich",
     "Evans",
+    "Fiore",
+    "Fischer",
+    "Flores",
+    "Fournier",
+    "Frazier",
     "Garcia",
+    "Gonzalez",
+    "Graziano",
+    "Grigoryan",
+    "Hansen",
     "Hall",
     "Hernandez",
     "Hoffman",
     "Howard",
+    "Huang",
+    "Hunt",
+    "Ishii",
+    "Johansen",
     "Johnson",
     "Jones",
+    "Kim",
+    "Kowalczyk",
+    "Lambert",
+    "Lee",
+    "Lewis",
+    "Lombardo",
+    "Lopez",
+    "Lorenz",
+    "Marino",
+    "Marshall",
     "Martinez",
+    "Milano",
     "Miller",
     "Mitchell",
     "Moore",
-    "Murray",
+    "Murphy",
+    "Nguyen",
+    "Novak",
     "Olson",
     "Ortiz",
     "Owens",
+    "Park",
+    "Parker",
+    "Patel",
     "Phillips",
     "Pierce",
     "Reed",
+    "Reynolds",
+    "Rivera",
+    "Robinson",
     "Rodriguez",
+    "Romano",
+    "Rossi",
+    "Ruiz",
+    "Sandoval",
+    "Schmidt",
     "Smith",
+    "Stepanyan",
+    "Suzuki",
     "Taylor",
     "Thompson",
     "Tran",
+    "Virtanen",
+    "Vogel",
+    "Walker",
     "Warren",
     "Washington",
+    "Watson",
+    "Webb",
+    "Weber",
+    "Wieczorek",
     "Williams",
     "Wilson",
+    "Winter",
+    "Wright",
+    "Yang",
+    "Yoshida",
+    "Yoon",
+    "Young",
+    "Zimmerman",
     ]
 
 

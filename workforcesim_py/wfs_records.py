@@ -48,7 +48,6 @@ record behaviors in a distorted manner.
 # ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 
 import random
-from datetime import timedelta
 
 
 # ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
@@ -65,9 +64,27 @@ from sklearn.metrics import mean_absolute_error
 # █ Import other modules from the WorkforceSim package
 # ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
 
-import config as cfg
-import wfs_personnel as pers
-import wfs_utilities as utils
+# Imports of the form "from . import X as x" have been added for use
+# in the distributed package; imports of the form "import X as x" are
+# retained for use when debugging the modules in VS Code.
+
+if __name__ == "__main__":
+    import config as cfg
+    import wfs_utilities as utils
+    import wfs_personnel as pers
+else:
+    try:
+        from . import config as cfg
+    except:
+        import config as cfg
+    try:
+        from . import wfs_utilities as utils
+    except:
+        import wfs_utilities as utils
+    try:
+        from . import wfs_personnel as pers
+    except:
+        import wfs_personnel as pers
 
 
 # ██████████████████████████████████████████████████████████████████████
@@ -85,6 +102,21 @@ def simulate_one_day_of_records():
     not accurately reflect workers' actual underlying behaviors.
     """
 
+    # ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+    # █ Generate no records and exit the function, if it's a 
+    # █ Saturday or Sunday.
+    # ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+
+    # If the current weekday is Sunday, skip ahead to the next day
+    # without generating any records.
+    if cfg.current_datetime_obj.weekday() == 6:
+        return
+
+
+    # ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+    # █ Generate records, as appropriate.
+    # ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+
     # First determine how a manager records all of those *actual behaviors*
     # that a worker performed and which thus already have entry rows
     # in cfg.behavs_act_df.
@@ -99,19 +131,19 @@ def simulate_one_day_of_records():
 
         # Only run the steps farther below if the given row is for the *current
         # day* (i.e., hasn't already been dealt with in a previous day).
-        if cfg.behavs_act_df["Behavior Date"].values[i] == current_date:
+        if cfg.behavs_act_df["Event Date"].values[i] == current_date:
 
-            # Get the identity of the manager (if any) for the person
+            # Get the identity of the supervisor (if any) for the person
             # who had the actual behavior.
             recording_sup = pers.person_object_with_given_sub_ID(
-                cfg.behavs_act_df["Supervisor ID"].values[i], # the subject ID for the person object being sought
+                cfg.behavs_act_df["Sup ID"].values[i], # the subject ID for the person object being sought
                 )
             #print("recording_sup: ", recording_sup)
 
             # If the person who performed the actual behavior had no 
             # supervisor (i.e., is the Production Director),
             # then no record will be made. Only proceed if the person who
-            # performed the actual behavior had a manager.
+            # performed the actual behavior had a supervisor.
             if recording_sup:
 
                 # ---------------------------------------------------------------------
@@ -121,11 +153,15 @@ def simulate_one_day_of_records():
                 # ---------------------------------------------------------------------
                 if cfg.behavs_act_df["Behavior Type"].values[i] == "Attendance":
 
-                    # Copy the main Behavior Type and Comptype fields.
+                    # Copy the main Behavior Type and Comptype fields
+                    # into the corresponding Record fields.
                     cfg.behavs_act_df["Record Type"].values[i] = \
                         cfg.behavs_act_df["Behavior Type"].values[i]
                     cfg.behavs_act_df["Record Comptype"].values[i] = \
                         cfg.behavs_act_df["Behavior Comptype"].values[i]
+
+                    # The lack of a Note will be represented by a None value.
+                    cfg.behavs_act_df["Note"].values[i] = None
 
 
                 # ---------------------------------------------------------------------
@@ -144,14 +180,7 @@ def simulate_one_day_of_records():
                     cfg.behavs_act_df["Record Comptype"].values[i] = \
                         cfg.behavs_act_df["Behavior Comptype"].values[i]
 
-                    # Copy the OHE of the Behavior Type and Comptype.
-                    cfg.behavs_act_df["Efficacy (Record Type)"].values[i] = \
-                        cfg.behavs_act_df["Efficacy (Behavior Type)"].values[i]
-
-                    cfg.behavs_act_df["Efficacy (Record Comptype)"].values[i] = \
-                        cfg.behavs_act_df["Efficacy (Behavior Comptype)"].values[i]
-
-                    # If an OEE system is in use (record Eff with full accuracy)...
+                    # If an OEE system is in use (record Efficacy with full accuracy)...
                     if cfg.oee_system_in_use == True:
 
                         # Copy the exact numerical Efficacy value from
@@ -159,7 +188,7 @@ def simulate_one_day_of_records():
                         cfg.behavs_act_df["Recorded Efficacy"].values[i] = \
                             cfg.behavs_act_df["Actual Efficacy"].values[i]
 
-                    # If no OEE system is in use (record a rounded Eff estimate)...
+                    # If no OEE system is in use (record a rounded Efficacy estimate)...
                     else: 
 
                         # Start with the worker's actual Efficacy level.
@@ -173,11 +202,12 @@ def simulate_one_day_of_records():
                             )
 
                         # Round the estimated Efficacy to the nearest 10%.
-                        # Note! Does this only round up, or is it capable of rounding
-                        # down, as well -- as is desired?
                         eff_estimated = round( eff_estimated*10.0, 0) / 10.0
 
                         cfg.behavs_act_df["Recorded Efficacy"].values[i] = eff_estimated
+
+                    # The lack of a Note will be represented by a None value.
+                    cfg.behavs_act_df["Note"].values[i] = None
 
 
                 # ---------------------------------------------------------------------
@@ -188,7 +218,7 @@ def simulate_one_day_of_records():
                 elif (cfg.behavs_act_df["Behavior Type"].values[i] == "Good") \
                         | (cfg.behavs_act_df["Behavior Type"].values[i] == "Poor"):
 
-                    # If the manager meets the threshold to generate a True Positive record...
+                    # If the supervisor meets the threshold to generate a True Positive record...
                     if recording_sup.prob_modified_recording_accurately >= (random.uniform(0.0, cfg.defense_roll_max_recording_TP)):
 
                         # Accurately copy the main Behavior Type and Comptype fields.
@@ -200,16 +230,16 @@ def simulate_one_day_of_records():
                         # Mark the record as a True Positive.
                         cfg.behavs_act_df["Record Conf Mat"].values[i] = "True Positive"
 
-                        # Add to the record a note written by the manager
+                        # Add to the record a note written by the supervisor
                         # who's making the entry.
-
                         note_text = return_note_to_be_added_to_entry(
                             cfg.behavs_act_df["Record Comptype"].values[i], # the Record Comptype for the given entry (e.g., "Lapse")
-                            cfg.behavs_act_df["First Name"].values[i], # First name of the person who performed the behavior
+                            cfg.behavs_act_df["Sub First Name"].values[i], # First name of the person who performed the behavior
                             )
                         cfg.behavs_act_df["Note"].values[i] = note_text
 
-                    # Otherwise, the manager falls short of the threshold to generate a True Positive record...
+
+                    # Otherwise, the supervisor falls short of the threshold to generate a True Positive record...
                     else:
 
                         # Inaccurately mark None as the main Behavior Type and Comptype fields.
@@ -218,6 +248,40 @@ def simulate_one_day_of_records():
 
                         # Mark the record as a False Negative.
                         cfg.behavs_act_df["Record Conf Mat"].values[i] = "False Negative"
+
+                        # The lack of a Note will be represented by a None value.
+                        cfg.behavs_act_df["Note"].values[i] = None
+
+
+                # ---------------------------------------------------------------------
+                # Update the relevant dictionary of the Person object *receiving* the record
+                # that stores the number of recordings of this type that have been
+                # *received* by the person on each day. In the case of an Efficacy record,
+                # add the recorded Efficacy value. In the case of a tally-type record
+                # (Idea, Lapse, etc.), increment the value for this day
+                # (as the key) by 1. (At dict creation, the values for all days are 0 or 0.0.)
+                # ---------------------------------------------------------------------
+                person = pers.person_object_with_given_sub_ID(
+                    cfg.behavs_act_df["Sub ID"].values[i], # the subject ID for the person object being sought
+                    )
+
+                if cfg.behavs_act_df["Record Comptype"].values[i] == "Absence":
+                    person.dict_days_with_num_of_absences_recorded[cfg.day_of_sim_iter] += 1
+ 
+                # Note! This presumes that a person can only receive one Efficacy recording per day.
+                # The new value overwrites any existing value for the day.
+                elif cfg.behavs_act_df["Record Comptype"].values[i] == "Efficacy":
+                    person.dict_days_with_recorded_eff_values[cfg.day_of_sim_iter] = \
+                        cfg.behavs_act_df["Recorded Efficacy"].values[i]
+
+                elif cfg.behavs_act_df["Record Comptype"].values[i] == "Lapse":
+                    person.dict_days_with_num_of_lapses_recorded[cfg.day_of_sim_iter] += 1
+                elif cfg.behavs_act_df["Record Comptype"].values[i] == "Slip":
+                    person.dict_days_with_num_of_slips_recorded[cfg.day_of_sim_iter] += 1
+                elif cfg.behavs_act_df["Record Comptype"].values[i] == "Disruption":
+                    person.dict_days_with_num_of_disruptions_recorded[cfg.day_of_sim_iter] += 1
+                elif cfg.behavs_act_df["Record Comptype"].values[i] == "Sabotage":
+                    person.dict_days_with_num_of_sabotages_recorded[cfg.day_of_sim_iter] += 1
 
 
 def display_simple_record_accuracy_statistics():
@@ -228,16 +292,16 @@ def display_simple_record_accuracy_statistics():
 
     # Get the number of particular events by Comptype.
     print("*****")
-    print("Number of Presences: ", cfg.behavs_act_df["Presence (Behavior Comptype)"].sum())
-    print("Number of Absences: ", cfg.behavs_act_df["Absence (Behavior Comptype)"].sum())
-    print("Number of Ideas: ", cfg.behavs_act_df["Idea (Behavior Comptype)"].sum())
-    print("Number of Lapses: ", cfg.behavs_act_df["Lapse (Behavior Comptype)"].sum())
-    print("Number of Feats: ", cfg.behavs_act_df["Feat (Behavior Comptype)"].sum())
-    print("Number of Slips: ", cfg.behavs_act_df["Slip (Behavior Comptype)"].sum())
-    print("Number of Teamworks: ", cfg.behavs_act_df["Teamwork (Behavior Comptype)"].sum())
-    print("Number of Disruptions: ", cfg.behavs_act_df["Disruption (Behavior Comptype)"].sum())
-    print("Number of Sacrifices: ", cfg.behavs_act_df["Sacrifice (Behavior Comptype)"].sum())
-    print("Number of Sabotages: ", cfg.behavs_act_df["Sabotage (Behavior Comptype)"].sum())
+    print("Number of Presences: ", cfg.behavs_act_df["Behavior Comptype"].value_counts()["Presence"])
+    print("Number of Absences: ", cfg.behavs_act_df["Behavior Comptype"].value_counts()["Absence"])
+    print("Number of Ideas: ", cfg.behavs_act_df["Behavior Comptype"].value_counts()["Idea"])
+    print("Number of Lapses: ", cfg.behavs_act_df["Behavior Comptype"].value_counts()["Lapse"])
+    print("Number of Feats: ", cfg.behavs_act_df["Behavior Comptype"].value_counts()["Feat"])
+    print("Number of Slips: ", cfg.behavs_act_df["Behavior Comptype"].value_counts()["Slip"])
+    print("Number of Teamworks: ", cfg.behavs_act_df["Behavior Comptype"].value_counts()["Teamwork"])
+    print("Number of Disruptions: ", cfg.behavs_act_df["Behavior Comptype"].value_counts()["Disruption"])
+    print("Number of Sacrifices: ", cfg.behavs_act_df["Behavior Comptype"].value_counts()["Sacrifice"])
+    print("Number of Sabotages: ", cfg.behavs_act_df["Behavior Comptype"].value_counts()["Sabotage"])
     print("*****")
 
     # Get the number of True Positives and False Negatives.
@@ -257,7 +321,7 @@ def display_simple_record_accuracy_statistics():
         temp_df["Record Conf Mat"].value_counts()["False Negative"]
 
 
-    # Calculate the MSE for managers' Efficacy records.
+    # Calculate the MSE for supervisors' Efficacy records.
     # First, delete rows that have an NaN for Actual
     # or Recorded Efficacy.
     temp_df = cfg.behavs_act_df.copy()
@@ -286,128 +350,19 @@ def display_simple_record_accuracy_statistics():
     print("MAE for Efficacy records:", recorded_eff_mae)
 
 
-def add_eff_mday_series_to_behavs_act_df():
-    """
-    Adds to cfg.behavs_act_df a new set of 'mday series' columns that
-    reflect the given subject's Efficacy on the days before or after
-    the day that is the focus of row (i.e., D0, the day on which the
-    row's main entry was recorded).
-    """
-
-    # Create the new columns whose values will be populated.
-    cfg.behavs_act_df["D-4 Eff"] = None
-    cfg.behavs_act_df["D-3 Eff"] = None
-    cfg.behavs_act_df["D-2 Eff"] = None
-    cfg.behavs_act_df["D-1 Eff"] = None
-    cfg.behavs_act_df["D0 Eff"] = None
-    cfg.behavs_act_df["D+1 Eff"] = None
-    cfg.behavs_act_df["D+2 Eff"] = None
-    cfg.behavs_act_df["D+3 Eff"] = None
-    cfg.behavs_act_df["D+4 Eff"] = None
-
-    # Create a dictionary that contains a key for each person's ID,
-    # and each of their values is a dictionary with a separate
-    # key for each week in the dataset. Each of those values is a DF
-    # with the entries for just that person in just that week.
-    dict_of_behavs_act_Eff_dfs_by_person_ID_and_week = {}
-
-    print("length of dict_of_behavs_act_Eff_dfs_by_person_ID_and_week: ", len(dict_of_behavs_act_Eff_dfs_by_person_ID_and_week))
-
-    # Calculate how many weeks are in the series comprising
-    # the dataset. That can be done by taking the 
-    final_week_in_series_num = utils.return_week_in_series_for_given_date(
-        utils.return_date_of_final_day_to_simulate(), # the date whose week should be returned
-        )
-    #print("final_week_in_series_num: ", final_week_in_series_num)
-
-    # For each person in the organization...
-    for p in cfg.persons:
-
-        dict_of_behavs_act_Eff_dfs_by_person_ID_and_week[cfg.persons[p].per_id] = {}
-
-        for w in range(0, final_week_in_series_num + 1):
-
-            # Create a temp DF with only that person's Eff behaviors
-            # (and the records made of them for the person
-            # by supervisors) for the given week.
-            behavs_act_df_this_pers = utils.return_df_with_rows_filtered_to_one_val_in_col(
-                cfg.behavs_act_df, # the input DF
-                "Person ID", # the column by which to filter rows
-                cfg.persons[p].per_id, # the value to seek in the col (i.e., the restrictor)
-                )
-
-            behavs_act_df_this_pers = behavs_act_df_this_pers[behavs_act_df_this_pers["Behavior Type"] == "Efficacy"]
-
-            behavs_act_df_this_pers = utils.return_df_with_rows_filtered_to_one_val_in_col(
-                behavs_act_df_this_pers, # the input DF
-                "Week in Series", # the column by which to filter rows
-                w, # the value to seek in the col (i.e., the restrictor)
-                )
-
-            # Add this person's Eff DF to the dictionary for all persons.
-            dict_of_behavs_act_Eff_dfs_by_person_ID_and_week[cfg.persons[p].per_id][w] = behavs_act_df_this_pers
-
-    # For each row in the main cfg.behavs_act_df...
-    for i in range(len(cfg.behavs_act_df)):
-
-        date_of_row_to_populate = cfg.behavs_act_df["Behavior Date"].values[i]
-        subject_ID_in_row_to_populate = cfg.behavs_act_df["Person ID"].values[i]
-
-        #print("date_of_sought_mday: ", date_of_sought_mday)
-
-        # First, search in the week during which D0 falls. Then check in
-        # the previous week (if it exists) and the following week (if it exists).
-        focal_week = utils.return_week_in_series_for_given_date(date_of_row_to_populate)
-        #print("focal_week: ", focal_week)
-
-        weeks_to_search = [focal_week]
-        if focal_week > 0:
-            weeks_to_search.append(focal_week - 1)
-        if focal_week < final_week_in_series_num:
-            weeks_to_search.append(focal_week + 1)
-
-        for week in weeks_to_search:
-            behavs_act_Eff_df_this_sub = dict_of_behavs_act_Eff_dfs_by_person_ID_and_week[subject_ID_in_row_to_populate][week]
-
-            # Search the correct person's DF for an Eff behavior recorded on 
-            # particular mdays defined relative to that row's entry date.
-
-            for j in range(len(behavs_act_Eff_df_this_sub)):
-
-                # Check each desired mday, as defined relative to D0.
-                for delta_days, mday_label in [
-                    (-4, "D-4 Eff"),
-                    (-3, "D-3 Eff"),
-                    (-2, "D-2 Eff"),
-                    (-1, "D-1 Eff"),
-                    (0, "D0 Eff"),
-                    (1, "D+1 Eff"),
-                    (2, "D+2 Eff"),
-                    (3, "D+3 Eff"),
-                    (4, "D+4 Eff"),
-                    ]:
-
-                    # Find and note any Eff behavior from the given mday.
-                    date_of_sought_mday = date_of_row_to_populate + timedelta(days = delta_days)
-                    if (behavs_act_Eff_df_this_sub["Behavior Type"].values[j] == "Efficacy") \
-                            & (behavs_act_Eff_df_this_sub["Behavior Date"].values[j] == date_of_sought_mday):
-                        mday_eff_act = behavs_act_Eff_df_this_sub["Actual Efficacy"].values[j]
-                        cfg.behavs_act_df[mday_label].values[i] = mday_eff_act
-
-
 def return_note_to_be_added_to_entry(
     entry_comptype_u, # the Record Comptype for the given entry (e.g., "Lapse")
     person_first_name_u, # First name of the person who performed the behavior
     ):
     """
-    Returns a note from the recording manager to be added to a record
-    when it's entered in the system. Not all Record Comptypes have 
+    Returns a note from the recording supervisor to be added to a record
+    when it's entered in the HRM/ERP system. Not all Record Comptypes have 
     notes; None will be returned if no note is generated.
     """
 
     # A note is created by concatenating four text elements:
     # 
-    # - An explanation of how the manager gained the info about the
+    # - An explanation of how the supervisor gained the info about the
     #   purported behavior (e.g., "I noticed that ", "I suspect that ",
     #   "I was told by a worker that ", etc.). Note that this element 
     #   can be "", in which case the note starts with the second element.
@@ -515,7 +470,7 @@ def return_note_to_be_added_to_entry(
             "knocked over a full tank of the genobaric fluid needed to operate ",
             "somehow forgot the control arrangement on the Heavy Material Transporter and drove it right into ",
             "grabbed the wrong release handle (twice in one shift) when trying to operate ",
-            "moved too slowly hitting the startup cycle button and got trapped inside ",
+            "moved too slowly when hitting the startup cycle button and got trapped inside ",
             "stumbled and spilled a whole box of quantum fuses down the drains next to ",
             "pushed too hard and broke the recapitulator mechanism on ",
             ]
@@ -566,7 +521,7 @@ def return_note_to_be_added_to_entry(
             "started a completely unnecessary argument with teammates over ",
             "continued to spread completely baseless rumors about the supposed “biomagnetic dangers” associated with working on ",
             "refused to use the new procedure for activating ",
-            "kept running the Sonomattica-7 at full power while others were trying to hold a meeting to discuss changes to ",
+            "kept running the Sonomattica-7 at full power (and loudly) while others were trying to hold a meeting to discuss changes to ",
             "refused (once again) to let anyone else work on ",
             ]
         note_element_3_option_weights = [
@@ -790,7 +745,7 @@ def return_note_to_be_added_to_entry(
             "there hasn’t been enough time to set up and test the new Genomentor.",
             "the other teams have already broken three conducer arrays, and the next shipment won’t arrive for a month.",
             "most of the others had to attend a special safety training session today.",
-            "no one else is qualified to perform the E-Type reconfiguration process.",
+            "no one else is qualified to perform the H-Type reconfiguration process.",
             ]
         note_element_4_option_weights = [
             1,
