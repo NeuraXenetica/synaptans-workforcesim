@@ -1,0 +1,334 @@
+<html>
+<head>
+<style>
+
+body {
+    background-color:#2c2c31;
+    color:rgb(232, 232, 232);
+    font-family: Helvetica, sans-serif;
+}
+h1 {
+    color:#ffca95
+}
+p {
+    line-height:1.3;
+}
+td {
+    line-height:1.3;
+}
+a {
+    color: #9ea3ff;
+    font-weight:bold;
+}
+.div_main
+{
+    background-color:#191919;
+    border-radius:25px;
+    margin:auto;
+    margin-top:30px;
+    margin-bottom:30px;
+    padding:30px;
+    max-width:850px;
+    box-shadow:0px 0px 20px 10px #9ea3ff;
+}
+.div_data_source {
+    background-color:#2c2c31;
+    color:#ffca95;
+    border-radius:15px;
+    margin:auto;
+    margin-bottom:20px;
+    margin-top:20px;
+    padding:20px;
+    max-width:800px;
+    text-align:left;
+}
+.table_data_source
+{
+    display:table;
+    width:100%;
+    min-width:100%;
+    padding:5px;
+    border-collapse:collapse;
+}
+.table_data_source_cell_descrip
+{
+    color:#ffca95;
+    padding-right:10px;
+    padding-top:20px;
+    padding-bottom:20px;
+    padding-left:0px;
+    font-size:1.15em;
+    border-top:1px solid #9ea3ff;
+}
+.table_data_source_cell_radio
+{
+    width:40px;
+    height:30px;
+    padding:0;
+    padding-top:20px;
+    padding-bottom:20px;
+    border-top:1px solid #9ea3ff;
+}
+.table_configure
+{
+    display:table;
+    width:100%;
+    min-width:100%;
+    padding:5px;
+    border-collapse:collapse;
+}
+.table_configure_header
+{
+    font-size:1.4em;
+    color:#9ea3ff;
+}
+.table_configure_cell_descrip
+{
+    width:75%;
+    color:rgb(232, 232, 232);
+    padding-left:0px;
+    padding-right:10px;
+    padding-top:10px;
+    padding-bottom:10px;
+    border-bottom:1px solid #191919;
+}
+.table_configure_cell_inputted_value
+{
+    width:25%;
+    height:30px;
+    padding:0;
+    padding-top:10px;
+    padding-bottom:10px;
+    border-bottom:1px solid #191919;
+}
+.table_configure_input
+{
+    display:inline-block;
+    position:relative;
+    width:100%;
+    height:100%;
+    color:rgb(0, 0, 0);
+    border-radius:5px;
+    padding:3px;
+    text-align:right;
+    font-weight:bold;
+    font-size:1.1em;
+}
+.button_generate_visualizations {
+    margin:auto;
+    margin-top:30px;
+    padding:15px;
+    border-radius:30px;
+    background-color:#00FA95;
+    border:3px white solid;
+    font-size:1.15em;
+    font-weight:bold;
+    box-shadow: 5px 5px 7px rgb(0, 0, 0);
+}
+.a_download_csv_file {
+    -webkit-appearance:button;
+    -moz-appearance:button;
+    appearance:button;
+    text-decoration:none;
+    color:initial;
+    background-color:#00FA95;
+    border:3px white solid;
+    padding:15px;
+    border-radius:30px;
+    font-size:1.15em;
+    margin:auto;
+    margin-top:15px;
+    box-shadow: 5px 5px 7px rgb(0, 0, 0);
+}
+.div_footer
+{
+    display:inline-block;
+    text-align:center;
+    width:100%;
+    color:#9ea3ff;
+    font-size:0.7em;
+    padding-bottom:10px;
+}
+
+input::-webkit-inner-spin-button {margin-left:5px;}
+input::-webkit-calendar-picker-indicator {margin-left:5px;}
+</style>
+</head>
+
+<body>
+<div class="div_main">
+
+
+<table>
+    <tr>
+        <td style="padding-right:10px;">
+            <h1>Synaptans WorkforceSim™</h1>
+            <p>Synaptans WorkforceSim is a <a href="https://github.com/NeuraXenetica/synaptans-workforcesim">
+                free open-source platform</a> for simulating the complex dynamics of a factory workforce, 
+                including workers’ daily job performance, personal interactions with their peers and 
+                supervisors, and attrition. The results of a given run of the simulation are analyzed 
+                through a series of visualizations and outputted as a CSV file containing all of the 
+                behaviors that workers and managers displayed throughout the simulated period. The 
+                results’ format and contents have been designed for use in training machine-learning 
+                models to identify hidden trends and correlations in workers’ behavior and to facilitate objective 
+                assessments of the accuracy of differing approaches to predictive workplace analytics.</p>
+        </td>
+        <td style="vertical-align:top; padding-left:10px;">
+            <img src="static/graphics/WorkforceSim_logo_02_1120-B_02.png" style="
+                display:inline;
+                float:right;
+                max-width:125px;
+                ">
+        </td>
+    </tr>
+</table>
+
+
+<div class="div_data_source">
+<h2 class="table_configure_header">Select a data source</h2>
+
+<form method="post">
+
+<table class="table_data_source">
+    <tr>
+        <td class="table_data_source_cell_radio">
+            <input type="radio" id="stored_dataset" value="stored_dataset" name="visualization_data_source_from_form"
+            {% if visualization_data_source_to_display == "stored_dataset" %}checked{% endif %}>
+        </td>
+        <td class="table_data_source_cell_descrip">
+            Use WorkforceSim's pregenerated dataset containing 90 days of simulated activity for an organization with 148 members
+             (i.e., 1 Production Director, 3 Shift Managers, 24 Team Leaders, and 120 Laborers).
+        </td>
+    </tr>
+    <tr>
+        <td class="table_data_source_cell_radio">
+            <input type="radio" id="newly_generated_dataset" value="newly_generated_dataset" name="visualization_data_source_from_form"
+            {% if visualization_data_source_to_display == "newly_generated_dataset" %}checked{% endif %}>
+        </td>
+        <td class="table_data_source_cell_descrip">
+            Generate a new dataset by running the simulation using the arguments specified below:
+        </td>
+    </tr>
+</table>
+
+<div style="margin-left:60px">
+<table class="table_configure">
+    <tr>
+        <td class="table_configure_cell_descrip">Starting date of the priming period (whose data will not be retained for analysis)</td>
+        <td class="table_configure_cell_inputted_value">
+            <input class="table_configure_input" type="date" 
+                id="SIM_STARTING_DATE_from_form" name="SIM_STARTING_DATE_from_form"
+                value={{ SIM_STARTING_DATE_to_display }}></td>
+    </tr>
+    <tr>
+        <td class="table_configure_cell_descrip">Starting date of the focal period (whose data will be retained for analysis)</td>
+        <td class="table_configure_cell_inputted_value">
+            <input class="table_configure_input" type="date" 
+                id="SIM_STARTING_DATE_FOR_ANALYSIS_from_form" name="SIM_STARTING_DATE_FOR_ANALYSIS_from_form"
+                value={{ SIM_STARTING_DATE_FOR_ANALYSIS_to_display }}></td>
+    </tr>
+    <tr>
+        <td class="table_configure_cell_descrip">Total length in days of the focal period to be simulated (including weekends and holidays)</td>
+        <td class="table_configure_cell_inputted_value">
+            <input class="table_configure_input" type="number" step="1"
+                id="NUM_OF_DAYS_TO_SIMULATE_FOR_ANALYSIS_from_form" name="NUM_OF_DAYS_TO_SIMULATE_FOR_ANALYSIS_from_form"
+                value={{ NUM_OF_DAYS_TO_SIMULATE_FOR_ANALYSIS_to_display }}></td>
+    </tr>
+    <tr>
+        <td class="table_configure_cell_descrip">Number of regular frontline Laborers per team</td>
+        <td class="table_configure_cell_inputted_value">
+            <input class="table_configure_input" type="number" step="1"
+                id="NUM_OF_LABORERS_PER_TEAM_from_form" name="NUM_OF_LABORERS_PER_TEAM_from_form"
+                value={{ NUM_OF_LABORERS_PER_TEAM_to_display }}></td>
+    </tr>
+    <tr>
+        <td class="table_configure_cell_descrip">Mean value for use in randomly generating selected worker stats</td>
+        <td class="table_configure_cell_inputted_value">
+            <input class="table_configure_input" type="number" step="0.01"
+                id="OTHER_STATS_STAT_MEAN_from_form" name="OTHER_STATS_STAT_MEAN_from_form"
+                value={{ OTHER_STATS_STAT_MEAN_to_display }}></td>
+    </tr>
+    <tr>
+        <td class="table_configure_cell_descrip">Standard deviation for use in randomly generating selected worker stats</td>
+        <td class="table_configure_cell_inputted_value">
+            <input class="table_configure_input" type="number" step="0.01"
+                id="OTHER_STATS_STAT_SDEV_from_form" name="OTHER_STATS_STAT_SDEV_from_form"
+                value={{ OTHER_STATS_STAT_SDEV_to_display }}></td>
+    </tr>
+    <tr>
+        <td class="table_configure_cell_descrip">Random seed</td>
+        <td class="table_configure_cell_inputted_value">
+            <input class="table_configure_input" type="number" step="1"
+                id="RANDOM_SEED_A_from_form" name="RANDOM_SEED_A_from_form"
+                value={{ RANDOM_SEED_A_to_display }}></td>
+    </tr>
+    <tr>
+        <td class="table_configure_cell_descrip">Base daily attendance rate (before individual persons’ modifiers)</td>
+        <td class="table_configure_cell_inputted_value">
+            <input class="table_configure_input" type="number" step="0.01"
+                id="BASE_RATE_ATTENDANCE_from_form" name="BASE_RATE_ATTENDANCE_from_form"
+                value={{ BASE_RATE_ATTENDANCE_to_display }}></td>
+    </tr>
+    <tr>
+        <td class="table_configure_cell_descrip">Base daily efficacy (before individual persons’ modifiers)</td>
+        <td class="table_configure_cell_inputted_value">
+            <input class="table_configure_input" type="number" step="0.01"
+                id="BASE_RATE_EFFICACY_from_form" name="BASE_RATE_EFFICACY_from_form"
+                value={{ BASE_RATE_EFFICACY_to_display }}></td>
+    </tr>
+    <tr>
+        <td class="table_configure_cell_descrip">Base maximum variability in daily efficacy (before individual persons’ modifiers)</td>
+        <td class="table_configure_cell_inputted_value">
+            <input class="table_configure_input" type="number" step="0.01"
+                id="BASE_MAX_EFFICACY_VARIABILITY_from_form" name="BASE_MAX_EFFICACY_VARIABILITY_from_form"
+                value={{ BASE_MAX_EFFICACY_VARIABILITY_to_display }}></td>
+    </tr>
+    <tr>
+        <td class="table_configure_cell_descrip">Base rate of managers’ recording accuracy</td>
+        <td class="table_configure_cell_inputted_value">
+            <input class="table_configure_input" type="number" step="0.01"
+                id="BASE_RATE_RECORDING_ACCURACY_from_form" name="BASE_RATE_RECORDING_ACCURACY_from_form"
+                value={{ BASE_RATE_RECORDING_ACCURACY_to_display }}></td>
+    </tr>
+</table>
+</div>
+
+<div style="width:100%; text-align:center">
+<button type="submit" class="button_generate_visualizations">
+    Click to visualize the simulation using the data source selected above</button>
+</div>
+
+</form>
+</div>
+
+
+<div class="div_data_source">
+<h2 class="table_configure_header">View the simulation’s results</h2>
+<p>Once all of the workers’ daily activities have been determined and analyzed, 
+    plots will be displayed here to visually highlight relevant 
+    dimensions of persons’ interactions and behaviors.</p>
+
+{% for i in plots_to_display_list %}
+<img src="static/plots/{{ i }}" style="
+    max-width:100%;
+    margin-top:15px;
+    ">
+{% endfor %}
+
+{% if dataset_csv_for_download_url_to_display %}
+<div style="width:100%; text-align:center">
+<a href={{ dataset_csv_for_download_url_to_display }}
+    class="a_download_csv_file">
+    Click to download a CSV file with raw data for the simulated activity</a>
+</div>
+{% endif %}
+
+</div>
+</div>
+
+
+<div class="div_footer">
+©2021-2023 NeuraXenetica LLC | Released under GNU General Public License Version 3
+</div>
+</body>
+</html>

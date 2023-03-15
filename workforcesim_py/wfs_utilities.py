@@ -1,12 +1,8 @@
-# -*- coding: utf-8 -*-
-
 # ╔════════════════════════════════════════════════════════════════════╗
-# ║   Synaptans WorkforceSim™: open-source software for simulating     ║
-# ║   the dynamics of a factory workforce and assessing approaches     ║
-# ║   to AI-based predictive analytics in the workplace.               ║
+# ║   Synaptans WorkforceSim™ is open-source software for simulating   ║
+# ║   the complex dynamics of a factory workforce.                     ║
 # ║                                                                    ║
-# ║   Developed by Matthew E. Gladden • ©2021-22 NeuraXenetica LLC     ║
-# ║                                                                    ║
+# ║   Developed by Matthew E. Gladden • ©2021-23 NeuraXenetica LLC     ║
 # ║   This software is made available for use under                    ║
 # ║   GNU General Public License Version 3                             ║
 # ║   (please see https://www.gnu.org/licenses/gpl-3.0.html).          ║
@@ -18,66 +14,23 @@ to just a single level of the simulation’s logic, along with other
 general time-saving utility functions.
 """
 
-# ██████████████████████████████████████████████████████████████████████
-# ██████████████████████████████████████████████████████████████████████
-# ███
-# ███ PRELIMINARY STEPS
-# ███
-# ██████████████████████████████████████████████████████████████████████
-# ██████████████████████████████████████████████████████████████████████
-
-# ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
-# █ Configure code analysis
-# ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
-
-# This disables pylint convention-violation alerts that see
-# variables as "constants" and thus require them to use
-# the UPPER_CASE naming style, when in fact they are used
-# by modules as variables.
-# pylint: disable=C0103
-
-
-# ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
-# █ Import standard modules
-# ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
-
 import datetime
 from datetime import timedelta
 
+# Import other modules from this package.
+import config as cfg
 
-# ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
-# █ Import third-party modules
-# ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
-
-
-# ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
-# █ Import other modules from the WorkforceSim package
-# ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
-
-# Imports of the form "from . import X as x" have been added for use
-# in the distributed package; imports of the form "import X as x" are
-# retained for use when debugging the modules in VS Code.
-
-if __name__ == "__main__":
-    import config as cfg
-else:
-    try:
-        from . import config as cfg
-    except:
-        import config as cfg
-
-
-# ██████████████████████████████████████████████████████████████████████
-# ██████████████████████████████████████████████████████████████████████
-# ███
-# ███ DEFINE CLASSES AND FUNCTIONS
-# ███
-# ██████████████████████████████████████████████████████████████████████
-# ██████████████████████████████████████████████████████████████████████
 
 def sort_df_by_given_field_descending(df_u, col_name_u):
     """
     Sorts a DataFrame by a given column (descending).
+
+    PARAMETERS
+    ----------
+    df_u
+        The DataFrame to be sorted
+    col_name_u
+        The column by which to sort
     """
 
     df_sorted = df_u.copy()
@@ -85,24 +38,33 @@ def sort_df_by_given_field_descending(df_u, col_name_u):
     return df_sorted
 
 
-def return_df_with_selected_cols_from_df(
-    input_df_u, # the input DF
-    cols_to_keep_u, # a list of columns to keep in the new DF
-    ):
+def return_df_with_selected_cols_from_df(input_df_u, cols_to_keep_u):
     """
-    Returns a DataFrame with selected columns from an inputted DataFrame.
+    Returns a DataFrame with selected columns from an inputted 
+    DataFrame.
+
+    PARAMETERS
+    ----------
+    input_df_u
+        The DataFrame from which columns will be selected
+    cols_to_keep_u : list
+        The columns of the DataFrame that should be returned
     """
 
     new_df = input_df_u[cols_to_keep_u]
     return new_df
 
 
-def return_df_with_selected_cols_deleted(
-    input_df_u, # the input DF
-    cols_to_delete_u, # a list of columns to delete from the DF
-    ):
+def return_df_with_selected_cols_deleted(input_df_u, cols_to_delete_u):
     """
     Returns a DataFrame with selected columns deleted.
+
+    PARAMETERS
+    ----------
+    input_df_u
+        The DataFrame from which columns should be deleted
+    cols_to_delete_u : list
+        The columns to delete
     """
 
     new_df = input_df_u.drop(columns=cols_to_delete_u)
@@ -110,70 +72,109 @@ def return_df_with_selected_cols_deleted(
 
 
 def return_df_with_rows_filtered_to_one_val_in_col(
-    input_df_u, # the input DF
-    col_by_which_to_filter_rows_u, # the column by which to filter rows
-    val_to_seek_in_col, # the value to seek in the col (i.e., the restrictor)
-    ):
+    input_df_u, col_by_which_to_filter_rows_u, val_to_seek_in_col):
     """
-    Returns a DF with only those rows possessing a particular
+    Returns a DataFrame with only those rows possessing a particular
     specified value in a particular column.
+
+    PARAMETERS
+    ----------
+    input_df_u
+        The DataFrame to be filtered
+    col_by_which_to_filter_rows_u
+        The column by which to filter rows
+    val_to_seek_in_col
+        The value to seek in the column (i.e., the restrictor)
     """
 
-    new_df = input_df_u[ input_df_u[col_by_which_to_filter_rows_u] == val_to_seek_in_col ]
+    new_df = (input_df_u[input_df_u[col_by_which_to_filter_rows_u] ==
+        val_to_seek_in_col])
     return new_df
 
 
-def return_df_with_col_one_hot_encoded(
-    input_df_u, # the input DF
-    col_to_one_hot_encode_u, # the column to one-hot encode
-    ):
+def return_df_with_col_one_hot_encoded(input_df_u, col_to_one_hot_encode_u):
     """
     Returns a DataFrame with new columns added that one-hot encode
     a specified already existing column.
+
+    PARAMETERS
+    ----------
+    input_df_u
+        The DataFrame to one-hot encode
+    col_to_one_hot_encode_u
+        The column to one-hot encode
     """
+
+    def ohe_apply(
+        value_in_df,
+        value_to_ohe
+        ):
+        """
+        Returns a one-hot-encoded value of 1 or 0.
+
+        PARAMETERS
+        ----------
+        value_in_df
+            The term that is actually present in a DataFrame cell
+        value_to_ohe : str
+            The term which, if present, should produce a 1
+        """
+
+        if value_in_df == value_to_ohe:
+            return int(1)
+        else:
+            return 0
 
     new_df = input_df_u.copy()
 
-    # Create the blank new one-hot-encoding columns.
-    for u in new_df[col_to_one_hot_encode_u].unique().tolist():
-
+    # Create the blank new one-hot-encoding columns and populate
+    # their values.
+    for item in new_df[col_to_one_hot_encode_u].unique().tolist():
         col_name = str(u) + " (" + str(col_to_one_hot_encode_u) + ")"
         new_df[col_name] = None
 
-    # Populate the values of the newly created one-hot-encoding columns.
-    for i in range(len(new_df)):
-
-        # Find the new OHE column that corresponds to the 
-        # value that was in the column to be one-hot encoded.
-        col_name = str(new_df[col_to_one_hot_encode_u].values[i]) + " (" + str(col_to_one_hot_encode_u) + ")"
-
-        # Write 1 into the relevant OHE column.
-        new_df[col_name].values[i] = 1
+        new_df[col_name] = new_df[col_to_one_hot_encode_u].apply(
+            ohe_apply,
+            value_to_ohe=item
+            )
 
     return new_df
 
 
 def return_df_with_rows_deleted_that_containing_na_in_col(
-    input_df_u, # the input DF whose rows should be deleted
-    col_u, # the column in which an Na value will cause row deletion
-    ):
+    input_df_u, col_u):
+    """
+    Returns a DataFrame in which rows have been deleted that include
+    an Na value in a specified column.
+
+    PARAMETERS
+    ----------
+    input_df_u
+        The DataFrame with rows to be deleted
+    col_u
+        The column in which an Na value will cause row deletion
+    """
 
     input_df_u = input_df_u[input_df_u[col_u].notna()]
     return input_df_u
 
 
-def return_week_in_series_for_given_date(
-    input_date_u, # the date whose week should be returned
-    ):
+def return_week_in_series_for_given_date(input_date_u):
     """
     Returns the week (1-indexed int) where a given inputted date falls,
-    within the series of retained in the dataset.
+    within the series of data retained in the dataset.
+
+    PARAMETERS
+    ----------
+    input_date_u
+        The date whose week should be returned
     """
 
     # Calculate the difference in days from the inputted date 
-    # to the starting date of the dataset, divide by 7, drop the remainder,
-    # and add 1.
-    starting_date = datetime.datetime.strptime(cfg.sim_starting_date_for_analysis, '%Y-%m-%d').date()
+    # to the starting date of the dataset, divide by 7, drop the 
+    # remainder, and add 1.
+    starting_date = datetime.datetime.strptime(
+        cfg.SIM_STARTING_DATE_FOR_ANALYSIS, '%Y-%m-%d').date()
     days_difference_m = input_date_u - starting_date
     days_difference_m = float(days_difference_m.days)
     week_in_series = int( days_difference_m / 7 ) + 1
@@ -182,15 +183,17 @@ def return_week_in_series_for_given_date(
 
 def return_date_of_final_day_to_simulate(
     ):
+    """
+    Returns the date of the final day whose activities should be
+    simulated.
+    """
 
-    starting_date = datetime.datetime.strptime(cfg.sim_starting_date, '%Y-%m-%d').date()
-    days_num = cfg.num_of_days_to_simulate
-
+    starting_date = datetime.datetime.strptime(
+        cfg.SIM_STARTING_DATE, '%Y-%m-%d').date()
+    days_num = cfg.NUM_OF_DAYS_TO_SIMULATE
     current_date = starting_date
-
     for i in range(0, days_num - 1):
         current_date += timedelta(days = 1)
-
     final_date = current_date
     return final_date
 
@@ -210,7 +213,6 @@ def begin_tracking_elapsed_processing_time():
     simulation began.
     """
 
-    # Store the date and time at which the simulation began.
     cfg.sim_processing_start_datetime = datetime.datetime.now()
 
 
@@ -220,29 +222,12 @@ def return_elapsed_processing_time():
     of the simulation has been running.
     """
 
-    elapsed_datetime_timedelta = datetime.datetime.now() - cfg.sim_processing_start_datetime
-    elapsed_datetime_timedelta_displayable_str = str(elapsed_datetime_timedelta)
+    elapsed_datetime_timedelta = (datetime.datetime.now()
+        - cfg.sim_processing_start_datetime)
+    elapsed_datetime_timedelta_displayable_str = \
+        str(elapsed_datetime_timedelta)
     return elapsed_datetime_timedelta_displayable_str
 
-
-
-# ••••-••••-••••-••••-••••-••••-••••--••••-••••-••••-••••-••••-••••-••••
-
-# ██████████████████████████████████████████████████████████████████████
-# ██████████████████████████████████████████████████████████████████████
-# ███
-# ███ 
-# ███
-# ██████████████████████████████████████████████████████████████████████
-# ██████████████████████████████████████████████████████████████████████
-
-# ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
-# █ 
-# ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
-
-# ●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●● 
-# ● 
-# ●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●● 
 
 # ██████████████████████████████████████████████████████████████████████
 # █                                                                    █

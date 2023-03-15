@@ -1,56 +1,42 @@
 # SYNAPTANS WORKFORCESIM
 
-Synaptans WorkforceSim is a free open-source platform for simulating the dynamics of a factory workforce and then using such simulated behaviors of frontline workers and managers as a basis for assessing various AI-based approaches to predictive analytics in the workplace (e.g., by conducting sensitivity analysis for different algorithms and comparing such algorithms’ ability to uncover “hidden” trends and correlations that are known to be present in the synthetic data).
+Synaptans WorkforceSim is a free, open-source, Python-based web app for simulating the complex dynamics of a factory workforce – including workers’ daily job performance, personal interactions with their peers and supervisors, and attrition. The simulated activity is analyzed visually and outputted in a CSV file. The outputted datasets’ format and contents have been designed for use in training machine-learning models to identify hidden trends and correlations in workers’ behavior and to facilitate objective assessments of the accuracy of differing approaches to predictive workplace analytics. Such datasets can be further analyzed using the open-source Comport_AI web app, a predictive analytics package for HR.
 
-The software is developed by Matthew E. Gladden (with support from Cognitive Firewall LLC and NeuraXenetica LLC) and is made available for use under GNU General Public License Version 3. Please see https://www.gnu.org/licenses/gpl-3.0.html.
-
-![Plots exported from Synaptans WorkforceSim](https://github.com/NeuraXenetica/synaptans-workforcesim/blob/c17de568c551cc1b7c620c02918bba1f1189bb54/docs/assets/images/Synaptans_WorkforceSim_exported_plots_01.png)
+WorkforceSim utilizes FastAPI, Uvicorn, Jinja2, NumPy, Pandas, Matplotlib, Seaborn, and PIL. It is developed by Matthew E. Gladden (with support from Cognitive Firewall LLC and NeuraXenetica LLC) and is made available for use under GNU General Public License Version 3. Please see https://www.gnu.org/licenses/gpl-3.0.html.
 
 ___
 ## CONCEPTUAL OVERVIEW
 
-The simulation’s logic is intended to operate at four levels:
+The simulation’s logic operates at three levels:
 
-- **LEVEL 0: WORKFORCE CONSTRUCTION.** Here the software constructs a simulated workforce of a desired size, whose members possess a randomly-distributed array of psychological and demographic characteristics and abilities that will influence their daily behavior and performance in the workplace.
+- **LEVEL 1: WORKFORCE CONSTRUCTION.** Here the software constructs a simulated workforce of a desired size, whose members possess a randomly-distributed array of psychological and demographic characteristics and abilities that will influence their daily behavior and performance in the workplace.
 
-- **LEVEL 1: WORKERS’ BEHAVIORS.** Here the software simulates the concrete actions performed by frontline factory workers each day (e.g., by determining the actual degree of Efficacy with which each worker operates a production machine on a given day and determining exactly when workers cause workplace accidents or devise and implement business-process improvements).
+- **LEVEL 2: WORKERS’ BEHAVIORS.** Here the software simulates the concrete actions performed by frontline factory workers each day (e.g., by determining the actual degree of efficacy with which each worker operates a production machine on a given day and determining exactly when workers cause workplace accidents or devise and implement business-process improvements).
 
-- **LEVEL 2: MANAGERS’ RECORDS.** Here the software simulates the behavior of such workers’ immediate managers in noticing (or overlooking) and accurately (or inaccurately) recording workers’ actions in an HRM/ERP system that seeks to document workers’ performance. Managers do not have access to worker’ hidden, internal psychological characteristics; they can only attempt to observe and record workers’ externally visible behaviors.
+- **LEVEL 3: MANAGERS’ RECORDS.** Here the software simulates the behavior of such workers’ immediate managers in noticing (or overlooking) and accurately (or inaccurately) recording workers’ actions in an HRM/ERP system that seeks to document workers’ performance. Managers do not have access to worker’ hidden, internal psychological characteristics; they can only attempt to observe and record workers’ externally visible behaviors.
 
-- **LEVEL 3: AI-BASED ANALYSIS.** Here the software employs various forms of machine learning and AI to attempt to identify trends and causal connections, classify workers, and predict workers’ future behaviors on the basis of the information recorded by managers in the organization’s HRM/ERP system at Level 2. Just as in a real workplace, the AI doesn’t have direct access to the sum of workers’ actual behaviors; it can only access, analyze, and draw conclusions on the basis of the data that have actually been recorded in an organization’s HRM/ERP systems – and depending on the degree of attentiveness, thoroughness, and fairness displayed by managers, such data may or may not accurately reflect the reality of workers’ actual behaviors.
-
-- **LEVEL 4: ASSESSEMENT OF THE AI-BASED ANALYSIS.** In a real-world organization, it’s incredibly difficult to gauge the accuracy of AI-generated analysis of workers’ behaviors, as data scientists and senior executives have no access to what’s actually happening at Level 1; they only have access to the relatively tiny quantity of worker behaviors that are captured (often inaccurately) by information systems at Level 2. The utility of a workforce simulation like this one lies in the fact that we actually know the reality of each worker’s personality, capacities, and daily behaviors – because a user has specified (and is able to view) all workers’ characteristics (including attitudes, strengths, and weaknesses that are normally invisible in a workplace setting) and has algorithmically determined exactly what actions he or she performs each day. This makes it possible to compare an AI-based analysis not only against the observations that managers recorded at Level 2 but against the actual behaviors performed by workers at Level 1 and the true psychological capacities possessed by workers at Level 0. In this way, it becomes possible to evaluate which AI-based approaches can most accurately model workplace behaviors identify an organization’s best workers – and what degree of confidence can be placed in various forms of predictive analytics.
-
-The contents of Levels 1 and 2 are interrelated, with causal impacts flowing in both directions. Managers don't simply record their observations of workers' behavior; the fact that a given manager has (or has not) accurately recorded the activities of his or her subordinates can have an encouraging or demoralizing impact that will affect what behaviors the employees will generate in the following days.
-
-In the current version of the program, the code for Levels 0, 1, and 2 has been largely implemented and a development roadmap has been prepared for Levels 3-4.
+The contents of Levels 2 and 3 are interrelated, with causal impacts flowing in both directions: managers don’t simply record their observations of workers’ behavior; the fact that a given manager has (or has not) accurately recorded the activities of his or her subordinates can have an encouraging or demoralizing impact that will affect what behaviors the employees will generate in the following days.
 
 ___
 ## CONSTITUENT MODULES
 
 In addition to `__init__.py`, this Python package includes the following modules:
 
-- `config.py` (imported as `cfg`) • This module stores configuration settings and variables that are used by multiple modules.
+- `config.py` • This module stores configuration settings and constants and variables that are used by multiple modules.
 
-- `io_file_manager.py` (imported as `iofm`) • This module handles the reading of files from disk (e.g., XLSX files or PNG images); the writing of files to disk (e.g., saving DataFrames as XLSX files or Matplotlib plots as PNG images; and the saving of complex objects as file-like objects assigned to variables in memory (e.g., Matplotlib plots as in-memory PNGs for display in a GUI).
+- `io_file_manager.py` • This module handles the reading of files from disk (e.g., pickled files or PNG images) and the writing of files to disk (e.g., saving DataFrames as CSV files or Matplotlib plots as PNG images).
 
-- `wfs_utilities.py` (imported as `utils`) • This module includes general initialization functions that don’t relate to just a single level of the simulation’s logic, along with other general time-saving utility functions.
+- `wfs_utilities.py` • This module includes general initialization functions that don’t relate to just a single level of the simulation’s logic, along with other general time-saving utility functions.
 
-- `wfs_personnel.py` (imported as `pers`) • This module handles the simulation’s “Level 0” logic, which involves the creation of the members of the workforce and determining and determining of their (more or less) permanent personal characteristics.
+- `wfs_personnel.py` • This module handles the logic connected with creation of the members of the workforce and determining and determining of their (more or less) permanent personal characteristics.
 
-- `wfs_behaviors.py` (imported as `bhv`) • This module handles the simulation’s “Level 1” logic, which simulates the *actual* behaviors performed by workers during each day of the simulated time period. These behaviors reflect the “reality” of the daily productivity and interpersonal interactions of production workers in the factory.
+- `wfs_behaviors.py` • This module handles the logic that simulates the *actual* behaviors performed by workers during each day of the simulated time period. These behaviors reflect the “reality” of the daily productivity and interpersonal interactions of workers in the factory.
 
-- `wfs_records.py` (imported as `rec`) • This module handles the simulation’s “Level 2” logic, which simulates frontline managers’ personal *observations* of workers’ daily behaviors and the *records* of such behaviors that they enter into their factory’s (simulated) HRM/ERP system. Of critical importance is the fact that those records *may* or *may not* accurately reflect workers’ actual behaviors: a manager who is overworked, inattentive, dishonest, or unskilled in use of the HRM/ERP system may fail to record some worker behaviors, may record behaviors that didn’t actually occur, or may record behaviors in a distorted manner.
+- `wfs_records.py` • This module handles the logic that simulates frontline managers’ personal *observations* of workers’ daily behaviors and the *records* of such behaviors that they enter into their factory’s (simulated) HRM/ERP system. Of critical importance is the fact that those records *may* or *may not* accurately reflect workers’ actual behaviors: a manager who is overworked, inattentive, dishonest, or unskilled in use of the HRM/ERP system may fail to record some worker behaviors, may record behaviors that didn’t actually occur, or may record behaviors in a distorted manner.
 
-- `wfs_ai.py` (imported as `ai`) • This module handles the simulation’s “Level 3” logic, which uses various machine-learning techniques in an attempt to identify meaningful trends, causal relationships, and other correlations relating to workers’ personal characters and workplace behaviors and to attempt to predict workers’ future behavior – either absolutely or in response to particular changes that might be implemented in the workplace. In generating such analyses and predictions, the AI *does not* have access to workers’ actual personal characteristics or behaviors; rather, it only has access to the records made in the organization’s HRM/ERP system by its frontline managers – which may or may not reflect workers’ actual characteristics and behaviors in a fully accurate manner.
-
-- `wfs_evaluator.py` (imported as `eval`) • This module handles the simulation’s “Level 4” logic, which evaluates the accuracy and business value of the analyses and predictions made by various machine-learning techniques at Level 3 by comparing them to workers’ *actual* characteristics and behaviors (generated at Levels 0 and 1). This makes it possible to assess, for example, (1) what types of information regarding workers’ behaviors must be recorded, with what frequency, and for how large a workforce in order for the data present in the HRM/ERP system to allow machine learning algorithms to accurately predict future worker behaviors; (2) how much variation (e.g., in perceptiveness, objectivity, and completeness) can exist between individual managers’ approches to recording workers’ behaviors without undermining AI’s ability to detect certain trends and correlations or compromising the AI’s ability to accurately distinguish between the organization’s “more effective” and “less effective” workers; and (3) which forms of machine learning and AI are able to best predict workers’ future behaviors despite the “noise” produced by certain managers’ fragmentary, biased, or otherwise inaccurate manner of recording workers’ past behaviors in the HRM/ERP system.
-
-- `wfs_visualizer.py` (imported as `vis`) • This module handles visualization of the simulation’s results. It is capable of generating a wide range of histograms, bar plots, scatterplots, and other plots illustrating temporal trends and the relationships between particular variables.
+- `wfs_visualizer.py` • This module handles visualization of the simulation’s results. It is capable of generating a range of histograms, bar plots, scatterplots, and heatmaps illustrating temporal trends and the relationships between particular variables.
 
 - `wfs_executor.py` • This simple module runs the simulation, accepting the arguments provided by a user to (1) create a simulated workforce; (2) simulate workers’ daily activity for a specified number of days and quantity of workers; (3) generate the (potentially inaccurate) records of such workplace behaviors made by workers’ frontline managers; (4) employ AI in an attempt to discover trends and correlations in the records’ data and generate predictions; and then (5) assess the accuracy of those analyses and predictions by comparing them with what we know to be the case regarding workers’ actual past and expected future behaviors.
-
-![Plots exported from Synaptans WorkforceSim](https://github.com/NeuraXenetica/synaptans-workforcesim/blob/c17de568c551cc1b7c620c02918bba1f1189bb54/docs/assets/images/Synaptans_WorkforceSim_exported_plots_02.png)
 
 ___
 ## STRUCTURE AND DYNAMICS OF THE SIMULATED WORKFORCE
@@ -97,7 +83,7 @@ A person’s core stats are numbers that reflect the degree to which the individ
 
 - **Goodness** (`goodness`) reflects a person’s overall level of integrity and virtue, including the ability to deal constructively with adversity or disappointments in the workplace. In terms of the simulation, a Laborer with high Goodness will generate more Sacrifice behaviors and fewer Sabotage behaviors.
 
-- **Strength** (`strength`) and **Open-mindedness** (`openmindedness`) are "control stats" that have no influence on any of a person's behaviors and no relationship to any other stats or variables. They have been added to make it easier to assess the extent to which certain factors (e.g., a small workforce size or small number of days simulated) can give rise to apparent correlations between variables where no underlying causal connections exist.
+- **Strength** (`strength`) and **Open-mindedness** (`openmindedness`) are "control stats" that have no influence on any of a person’s behaviors and no relationship to any other stats or variables. They have been added to make it easier to assess the extent to which certain factors (e.g., a small workforce size or small number of days simulated) can give rise to apparent correlations between variables where no underlying causal connections exist.
 
 #### RELATIONSHIP OF CORE STATS TO DAILY BEHAVIORS
 
@@ -128,29 +114,16 @@ The simulated factory is designed to model a real-world organization. In real-wo
 ___
 ## RUNNING THE SIMULATION
 
-There are various ways of running the simulation, depending on how Python has been configured on one’s system. Below are some approaches that one might try. They all presume that one has already installed the workforcesim package.
+There are various ways of running the simulation, depending on how Python has been configured on one’s system. For example, presuming that one has successfully installed the workforcesim package (e.g., through `python -m pip install workforcesim`) and its dependencies, from within Windows PowerShell, one can open the workforcesim folder that contains the module files listed above and type: `uvicorn wfs_app:app` to launch the web app, which can then be accessed through a web browser at `http://127.0.0.1:8000/`.
 
-From witin Windows PowerShell, one can open the workforcesim folder that contains the module files listed above and type:
-`python wfs_executor.py`
+It is possible for a user to configure a number of the the simulation’s parameters from within the web app’s interface.
 
-Alternatively, from within PowerShell, one can access Python by typing `python` and then type:
-`from workforcesim import wfs_executor`
-
-Similarly, from within an IDE like VS Code, one can initiate an Python Interactive window and then, within the Jupyter code cell, type:
-`from workforcesim import wfs_executor`
-
-It is possible for a user to configure the simulation’s parameters by manually modifying the value of certain variables defined in the config.py module, including the number of Laborers who belong to each Team (which determines the overall size of the factory’s workforce) and the number of days of activity to be simulated.
-
-This can be done by (for example) restarting the Python kernel and then typing the following in a VS Code Python Interactive code cell to access the configuration module and change the starting date for the simulated period:
-`from workforcesim import config as config`
-`config.sim_starting_date = "2020-12-13"`
-
-The simulation can then be run by typing the following within an Interactive code cell:
-`from workforcesim import wfs_executor`
-
+___
 ### VIEWING THE RESULTS OF A SIMULATION
 
-Once the program has calculated each worker’s actual behaviors (and each manager’s recording of behaviors) for all days of the period simulated, it will generate a number of figures that visualize various aspects of the results. These are outputted as PNG files saved in an “output_files” folder that by default will be created (for example) in the working directory that was active in Windows PowerShell before the wfs_executor.py module was run. A number of XLSX and CSV files containing selected info regarding the organizational workforce and its behaviors are also generated within the output_files folder.
+Once the program has calculated each worker’s actual behaviors (and each manager’s recording of behaviors) for all days of the period simulated, the web interface
+will automatically reload to display a number of figures that visualize various aspects of the results. A CSV file containing raw data on all of the simulated
+behaviors can be downloaded by clicking the green button at the bottom of the web app’s interface.
 
 ___
 ## DEVELOPMENT
@@ -159,4 +132,4 @@ Synaptans WorkforceSim™ is free open-source software developed by Matthew E. G
 
 The choice of the name “Synaptans” acknowledges the origins of some of the simulation’s underlying code in code written for a computer game in the “Utopian Confederation” game series, inspired by the seminal 16th-century philosophical text of St. Thomas More. In that game, “synaptans” is one of many ranks found within the administrative hierarchy of the Utopian Confederation, as it exists in the 22nd century.
 
-Synaptans WorkforceSim code and documentation ©2021-2022 NeuraXenetica LLC
+Synaptans WorkforceSim code and documentation ©2021-2023 NeuraXenetica LLC
